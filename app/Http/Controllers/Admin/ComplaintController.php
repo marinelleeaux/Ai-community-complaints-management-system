@@ -131,6 +131,16 @@ class ComplaintController extends Controller
             ]);
         });
 
+        if ($request->expectsJson() || $request->wantsJson()) {
+            $complaint->refresh();
+            return response()->json([
+                'success' => true,
+                'message' => "Complaint {$complaint->reference_number} is now {$complaint->statusBadge()['label']}.",
+                'status' => $complaint->status,
+                'status_badge' => $complaint->statusBadge(),
+            ]);
+        }
+
         return back()->with('success', "Complaint status successfully updated to {$complaint->statusBadge()['label']}.");
     }
 

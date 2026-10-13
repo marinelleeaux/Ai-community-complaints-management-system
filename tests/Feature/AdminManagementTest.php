@@ -138,4 +138,82 @@ class AdminManagementTest extends TestCase
         $response->assertStatus(200);
         $this->assertTrue(str_contains($response->headers->get('content-type'), 'text/csv'));
     }
+
+    public function test_admin_can_view_complaints_on_dashboard(): void
+    {
+        Complaint::create([
+            'reference_number' => 'CMP-20261013-0007',
+            'resident_id' => $this->pendingResident->id,
+            'purok_id' => $this->purok->id,
+            'category_id' => $this->category->id,
+            'title' => 'Flooding along Purok 1 drainage',
+            'original_description' => 'Grabe ang baha kay barado ang kanal.',
+            'incident_location' => 'Purok 1',
+            'incident_date' => now(),
+            'status' => 'submitted',
+            'final_priority' => 'urgent',
+        ]);
+
+        $response = $this->actingAs($this->admin)->get(route('admin.dashboard'));
+        $response->assertStatus(200);
+        $response->assertSee('Flooding along Purok 1 drainage');
+        $response->assertSee('CMP-20261013-0007');
+    }
+
+    public function test_admin_can_manually_resolve_pending_complaint(): void
+    {
+        $complaint = Complaint::create([
+            'reference_number' => 'CMP-20261013-0008',
+            'resident_id' => $this->pendingResident->id,
+            'purok_id' => $this->purok->id,
+            'category_id' => $this->category->id,
+            'title' => 'Burst water pipe',
+            'original_description' => 'Nibuswak ang tubo.',
+            'incident_location' => 'Purok 1',
+            'incident_date' => now(),
+            'status' => 'submitted',
+            'final_priority' => 'high',
+        ]);
+
+        $response = $this->actingAs($this->admin)->put(route('admin.complaints.update-status', $complaint->id), [
+            'status' => 'resolved',
+            'public_remarks' => 'Pipe repaired and cleared by barangay plumber.',
+        ]);
+
+        $response->assertSessionHas('success');
+        $this->assertDatabaseHas('complaints', [
+            'id' => $complaint->id,
+            'status' => 'resolved',
+            'resident_visible_remarks' => 'Pipe repaired and cleared by barangay plumber.',
+        ]);
+        $this->assertNotNull($complaint->fresh()->resolved_at);
+    }
+
+    public function test_admin_can_manually_reject_pending_complaint(): void
+    {
+        $complaint = Complaint::create([
+            'reference_number' => 'CMP-20261013-0009',
+            'resident_id' => $this->pendingResident->id,
+            'purok_id' => $this->purok->id,
+            'category_id' => $this->category->id,
+            'title' => 'Duplicate noise report',
+            'original_description' => 'Saba ang silingan.',
+            'incident_location' => 'Purok 1',
+            'incident_date' => now(),
+            'status' => 'submitted',
+            'final_priority' => 'low',
+        ]);
+
+        $response = $this->actingAs($this->admin)->put(route('admin.complaints.update-status', $complaint->id), [
+            'status' => 'rejected',
+            'public_remarks' => 'Duplicate report already addressed in ticket CMP-20261013-0005.',
+        ]);
+
+        $response->assertSessionHas('success');
+        $this->assertDatabaseHas('complaints', [
+            'id' => $complaint->id,
+            'status' => 'rejected',
+            'resident_visible_remarks' => 'Duplicate report already addressed in ticket CMP-20261013-0005.',
+        ]);
+    }
 }

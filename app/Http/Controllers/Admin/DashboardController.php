@@ -28,6 +28,7 @@ class DashboardController extends Controller
         $underReview = Complaint::where('status', 'under_review')->count();
         $inProgress = Complaint::where('status', 'in_progress')->count();
         $resolvedComplaints = Complaint::where('status', 'resolved')->count();
+        $rejectedComplaints = Complaint::where('status', 'rejected')->count();
         $highPriorityComplaints = Complaint::where('final_priority', 'high')->count();
         $urgentComplaints = Complaint::where('final_priority', 'urgent')->count();
         $publishedAnnouncements = Announcement::where('publication_status', 'published')->count();
@@ -66,17 +67,20 @@ class DashboardController extends Controller
             ]);
 
         // 4. Queues & Feeds
-        $recentComplaints = Complaint::with(['resident', 'category', 'purok'])
+        $recentComplaints = Complaint::with(['resident', 'category', 'purok', 'attachments'])
             ->latest()
-            ->take(6)
+            ->take(30)
             ->get();
 
         $pendingResidentsList = User::where('role', 'resident')
             ->where('account_status', 'pending')
             ->with('purok')
             ->latest()
-            ->take(5)
+            ->take(6)
             ->get();
+
+        $puroks = Purok::where('is_active', true)->orderBy('name')->get();
+        $categories = ComplaintCategory::where('is_active', true)->get();
 
         return view('admin.dashboard', compact(
             'totalResidents',
@@ -89,6 +93,7 @@ class DashboardController extends Controller
             'underReview',
             'inProgress',
             'resolvedComplaints',
+            'rejectedComplaints',
             'highPriorityComplaints',
             'urgentComplaints',
             'publishedAnnouncements',
@@ -97,7 +102,9 @@ class DashboardController extends Controller
             'priorityCounts',
             'purokData',
             'recentComplaints',
-            'pendingResidentsList'
+            'pendingResidentsList',
+            'puroks',
+            'categories'
         ));
     }
 }
