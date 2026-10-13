@@ -143,12 +143,33 @@
                                 </div>
                             @endif
 
-                            <div class="min-w-0">
-                                <h3 class="text-sm md:text-base font-bold text-[#12345B] dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
-                                    {{ $complaint->title }}
-                                </h3>
-                                <div class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-2 mt-0.5">
-                                    <span>{{ $complaint->reference_number }}</span>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="text-sm md:text-base font-extrabold text-[#12345B] dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                        {{ $complaint->title }}
+                                    </h3>
+                                    @php
+                                        $priorityStyles = [
+                                            'urgent' => 'bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800',
+                                            'high' => 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800',
+                                            'medium' => 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-800',
+                                            'low' => 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700',
+                                        ];
+                                        $pClass = $priorityStyles[$complaint->final_priority] ?? $priorityStyles['medium'];
+                                    @endphp
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border {{ $pClass }}">
+                                        {{ $complaint->final_priority }}
+                                    </span>
+                                </div>
+                                
+                                @if($complaint->original_description && in_array($complaint->original_language, ['ceb', 'fil', 'tgl']))
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5 italic">
+                                        <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 not-italic">🇵🇭 Cebuano / Original:</span> "{{ Str::limit($complaint->original_description, 65) }}"
+                                    </p>
+                                @endif
+
+                                <div class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-2 mt-1">
+                                    <span class="font-mono font-medium">{{ $complaint->reference_number }}</span>
                                     <span>•</span>
                                     <span>{{ $complaint->purok?->name ?? 'Purok 5' }}</span>
                                 </div>

@@ -15,13 +15,13 @@
         </div>
 
         <!-- AI Language Helper Notice -->
-        <div class="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 border border-blue-100 dark:border-blue-900/60 flex items-start gap-3">
-            <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+        <div class="p-4.5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/90 to-emerald-50/90 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-emerald-950/40 border border-blue-200/80 dark:border-blue-900/60 flex items-start gap-3.5 shadow-xs">
+            <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-blue-600 to-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs mt-0.5">
                 AI
             </div>
-            <div class="text-xs text-slate-700 dark:text-slate-300">
-                <strong class="font-bold text-[#12345B] dark:text-white">Multilingual AI Assistant Active:</strong>
-                You can write your description naturally in <strong>Cebuano / Bisaya, Tagalog, or English</strong>. Our system automatically translates and classifies issues for swift barangay response.
+            <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                <span class="font-extrabold text-[#12345B] dark:text-white block mb-0.5">Automated Multilingual Translation & Urgency Triage:</span>
+                You may write your complaint title and details in <strong>Cebuano/Bisaya, Tagalog, or English</strong>. Our AI automatically analyzes the text, generates a professional English translation, and determines whether it is <strong>Urgent, High, Medium, or Low</strong> priority to dispatch the appropriate barangay team.
             </div>
         </div>
 
@@ -33,15 +33,15 @@
                 <!-- Title -->
                 <div>
                     <label for="title" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                        Complaint Title / Summary <span class="text-rose-500">*</span>
+                        Complaint Title / Subject <span class="text-rose-500">*</span>
                     </label>
                     <input id="title" 
                            type="text" 
                            name="title" 
                            value="{{ old('title') }}" 
                            required 
-                           placeholder="e.g. Naguba nga tubo sa tubig o nagtipun-og nga basura"
-                           class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                           placeholder="e.g. Fallen electrical wire on street / Daghan kaayo og basura / Sirado ang dalan"
+                           class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500">
                     @error('title')
                         <p class="text-xs text-rose-500 font-medium mt-1.5">{{ $message }}</p>
                     @enderror

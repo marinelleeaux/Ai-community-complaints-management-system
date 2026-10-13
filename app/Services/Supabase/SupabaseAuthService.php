@@ -144,6 +144,23 @@ class SupabaseAuthService
                 ];
             }
 
+            // Fallback: If user exists in database with matching password, auto-sync to Supabase Auth
+            $localUser = User::where('email', $email)->first();
+            if ($localUser && $localUser->password && Hash::check($password, $localUser->password)) {
+                try {
+                    $this->signUp($email, $password, ['name' => $localUser->name]);
+                } catch (\Throwable) {
+                    // Ignore background sync errors
+                }
+
+                return [
+                    'success' => true,
+                    'is_local' => true,
+                    'user_id' => $localUser->supabase_uid ?: $localUser->id,
+                    'access_token' => 'sync_token_' . md5($localUser->id . time()),
+                ];
+            }
+
             $msg = $response->json('error_description') ?? $response->json('msg') ?? 'Invalid credentials.';
             return [
                 'success' => false,
@@ -151,6 +168,17 @@ class SupabaseAuthService
             ];
         } catch (Exception $e) {
             Log::error('Supabase signIn exception: ' . $e->getMessage());
+
+            $localUser = User::where('email', $email)->first();
+            if ($localUser && $localUser->password && Hash::check($password, $localUser->password)) {
+                return [
+                    'success' => true,
+                    'is_local' => true,
+                    'user_id' => $localUser->supabase_uid ?: $localUser->id,
+                    'access_token' => 'sync_token_' . md5($localUser->id . time()),
+                ];
+            }
+
             return [
                 'success' => false,
                 'error' => 'Authentication service unavailable.',

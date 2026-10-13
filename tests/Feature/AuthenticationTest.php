@@ -32,6 +32,49 @@ class AuthenticationTest extends TestCase
         $response->assertSee('Barangay North Poblacion');
     }
 
+    public function test_resident_can_login_via_post_and_redirect_to_dashboard(): void
+    {
+        $purok = Purok::first();
+        User::create([
+            'name' => 'Jan Marinelle Auditor',
+            'email' => 'jan.auditor@gmail.com',
+            'password' => Hash::make('Password123!'),
+            'role' => 'resident',
+            'account_status' => 'approved',
+            'is_active' => true,
+            'purok_id' => $purok->id,
+            'address' => 'Purok 3',
+        ]);
+
+        $response = $this->post(route('login'), [
+            'email' => 'jan.auditor@gmail.com',
+            'password' => 'Password123!',
+        ]);
+
+        $response->assertRedirect(route('resident.dashboard'));
+        $this->assertAuthenticated();
+    }
+
+    public function test_admin_can_login_via_post_and_redirect_to_admin_dashboard(): void
+    {
+        User::create([
+            'name' => 'Barangay Official',
+            'email' => 'admin@northpoblacion.gov.ph',
+            'password' => Hash::make('Password123!'),
+            'role' => 'admin',
+            'account_status' => 'approved',
+            'is_active' => true,
+        ]);
+
+        $response = $this->post(route('login'), [
+            'email' => 'admin@northpoblacion.gov.ph',
+            'password' => 'Password123!',
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticated();
+    }
+
     public function test_guest_can_view_registration_page_with_puroks(): void
     {
         $response = $this->get(route('register'));

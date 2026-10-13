@@ -91,12 +91,17 @@
                     </div>
                     @if($complaint->english_summary)
                         <div class="text-xs text-blue-950 dark:text-blue-300">
-                            <strong>Summary:</strong> {{ $complaint->english_summary }}
+                            <strong>English Summary:</strong> {{ $complaint->english_summary }}
+                        </div>
+                    @endif
+                    @if($complaint->priority_explanation)
+                        <div class="text-xs text-amber-900 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-xl border border-amber-200/80 dark:border-amber-800/80">
+                            <strong>AI Urgency Assessment ({{ strtoupper($complaint->final_priority) }}):</strong> {{ $complaint->priority_explanation }}
                         </div>
                     @endif
                     @if($complaint->english_translation && $complaint->english_translation !== $complaint->original_description)
                         <div class="text-xs text-slate-600 dark:text-slate-400 pt-2 border-t border-blue-100 dark:border-blue-900/50">
-                            <strong>English Translation:</strong> {{ $complaint->english_translation }}
+                            <strong>Full English Translation:</strong> {{ $complaint->english_translation }}
                         </div>
                     @endif
                 </div>

@@ -7,32 +7,36 @@
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Customize your interface theme, security, and notification settings</p>
         </div>
 
-        <!-- Theme Preference Card -->
+        <!-- Profile Information Summary Card -->
         <div class="bg-white dark:bg-[#1E293B] rounded-3xl p-6 md:p-8 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
-            <h3 class="text-base font-extrabold text-[#12345B] dark:text-white">Interface Theme</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Choose between light, dark, or operating system automatic color mode.</p>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-4">
+                    @if($user->avatarUrl())
+                        <img src="{{ $user->avatarUrl() }}" alt="{{ $user->name }}" class="w-14 h-14 rounded-2xl object-cover ring-2 ring-blue-500/30">
+                    @else
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#12345B] to-blue-600 text-white font-black text-lg flex items-center justify-center shadow-md">
+                            {{ $user->initials() }}
+                        </div>
+                    @endif
+                    <div>
+                        <h3 class="text-base font-extrabold text-[#12345B] dark:text-white">{{ $user->name }}</h3>
+                        <p class="text-xs text-slate-400">{{ $user->email }} • {{ $user->purok?->name ?? 'Verified Resident' }}</p>
+                    </div>
+                </div>
+                <a href="{{ route('resident.profile') }}" class="px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-600 dark:text-blue-300 font-bold text-xs transition-colors">
+                    Edit Profile Photo & Info
+                </a>
+            </div>
 
-            <div class="grid grid-cols-3 gap-3 pt-2">
-                <button type="button" 
-                        onclick="setTheme('light')" 
-                        class="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-blue-500 flex flex-col items-center gap-2 text-xs font-bold transition-all {{ $user->theme_preference === 'light' ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-600 border-blue-500' : 'text-slate-700 dark:text-slate-300' }}">
-                    <span class="text-xl">☀️</span>
-                    <span>Light Mode</span>
-                </button>
-
-                <button type="button" 
-                        onclick="setTheme('dark')" 
-                        class="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-blue-500 flex flex-col items-center gap-2 text-xs font-bold transition-all {{ $user->theme_preference === 'dark' ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-600 border-blue-500' : 'text-slate-700 dark:text-slate-300' }}">
-                    <span class="text-xl">🌙</span>
-                    <span>Dark Mode</span>
-                </button>
-
-                <button type="button" 
-                        onclick="setTheme('system')" 
-                        class="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-blue-500 flex flex-col items-center gap-2 text-xs font-bold transition-all {{ $user->theme_preference === 'system' ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-600 border-blue-500' : 'text-slate-700 dark:text-slate-300' }}">
-                    <span class="text-xl">💻</span>
-                    <span>System Default</span>
-                </button>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
+                <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
+                    <span class="block text-slate-400 font-medium text-[11px]">Contact Phone</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200 mt-0.5 block">{{ $user->phone ?: 'None provided' }}</span>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
+                    <span class="block text-slate-400 font-medium text-[11px]">Purok Residence</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200 mt-0.5 block">{{ $user->purok?->name ?? 'North Poblacion' }}</span>
+                </div>
             </div>
         </div>
 

@@ -176,9 +176,13 @@
                 <x-theme-toggle />
 
                 <div class="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-800">
-                    <div class="w-9 h-9 rounded-xl bg-blue-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
-                        {{ Auth::user()->initials() }}
-                    </div>
+                    @if(Auth::user()->avatarUrl())
+                        <img src="{{ Auth::user()->avatarUrl() }}" alt="{{ Auth::user()->name }}" class="w-9 h-9 rounded-xl object-cover ring-2 ring-blue-500/30 shrink-0">
+                    @else
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold text-xs flex items-center justify-center shadow-xs shrink-0">
+                            {{ Auth::user()->initials() }}
+                        </div>
+                    @endif
                     <div class="hidden sm:block text-left">
                         <div class="text-xs font-extrabold text-slate-900 dark:text-white leading-tight">
                             {{ Auth::user()->name }}

@@ -228,14 +228,23 @@
                     </a>
                 </div>
 
-                <!-- User Profile Pill (Matching User Screenshot: JA circle + Name + Chevron) -->
-                <a href="{{ route('resident.profile') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-2xl bg-white dark:bg-[#1E293B] border border-slate-100 dark:border-slate-800 shadow-sm hover:border-slate-200 dark:hover:border-slate-700 transition-all">
-                    <div class="w-9 h-9 rounded-xl bg-blue-600/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-extrabold text-sm flex items-center justify-center">
-                        {{ Auth::user()->initials() }}
+                <!-- User Profile Pill (With Profile Picture Avatar) -->
+                <a href="{{ route('resident.profile') }}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-2xl bg-white dark:bg-[#1E293B] border border-slate-100 dark:border-slate-800 shadow-xs hover:shadow-md hover:border-slate-200 dark:hover:border-slate-700 transition-all duration-200">
+                    @if(Auth::user()->avatarUrl())
+                        <img src="{{ Auth::user()->avatarUrl() }}" alt="{{ Auth::user()->name }}" class="w-9 h-9 rounded-xl object-cover ring-2 ring-blue-500/30 shrink-0">
+                    @else
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#12345B] to-blue-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                            {{ Auth::user()->initials() }}
+                        </div>
+                    @endif
+                    <div class="text-left hidden lg:block">
+                        <div class="font-bold text-xs text-[#12345B] dark:text-white leading-tight">
+                            {{ Auth::user()->name }}
+                        </div>
+                        <div class="text-[10px] text-slate-400">
+                            {{ Auth::user()->purok?->name ?? 'Verified Resident' }}
+                        </div>
                     </div>
-                    <span class="font-semibold text-sm text-[#12345B] dark:text-white hidden lg:inline">
-                        {{ Auth::user()->name }}
-                    </span>
                     <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
@@ -247,14 +256,14 @@
         <main class="flex-1 px-6 md:px-10 py-6 max-w-7xl w-full">
             <!-- Flash Messages -->
             @if(session('success'))
-                <div class="mb-6 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-sm flex items-center gap-3 shadow-sm">
+                <div class="mb-6 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-sm flex items-center gap-3 shadow-xs animate-in fade-in slide-in-from-top-2">
                     <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">✓</span>
                     <div class="font-medium">{{ session('success') }}</div>
                 </div>
             @endif
 
             @if(session('error'))
-                <div class="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-sm flex items-center gap-3 shadow-sm">
+                <div class="mb-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-sm flex items-center gap-3 shadow-xs animate-in fade-in slide-in-from-top-2">
                     <span class="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-xs">⚠</span>
                     <div class="font-medium">{{ session('error') }}</div>
                 </div>
@@ -264,8 +273,11 @@
         </main>
     </div>
 
+    <!-- Floating Ask AI Assistant Bubble Widget -->
+    <x-ai-chat-bubble />
+
     <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-5 right-5 z-40 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 
     @stack('scripts')
 </body>
