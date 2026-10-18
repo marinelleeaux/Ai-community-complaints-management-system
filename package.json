@@ -3,10 +3,10 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "echo 'Assets pre-built'",
+        "build": "node -e \"const fs=require('fs');if(!fs.existsSync('dist')){fs.cpSync('public','dist',{recursive:true});}\" && echo 'Assets pre-built'",
         "build:local": "vite build",
         "dev": "vite",
-        "vercel-build": "echo 'Assets pre-built'"
+        "vercel-build": "node -e \"const fs=require('fs');if(!fs.existsSync('dist')){fs.cpSync('public','dist',{recursive:true});}\" && echo 'Assets pre-built'"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
