@@ -76,7 +76,7 @@
 
                                 <div class="flex items-center gap-1 text-[11px] text-slate-400 pt-0.5">
                                     <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <span>Registered on {{ $res->created_at->format('M d, Y • h:i A') }} ({{ $res->created_at->diffForHumans() }})</span>
+                                    <span>Registered on {{ $res->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('M d, Y • h:i A') }} ({{ $res->created_at->diffForHumans() }})</span>
                                 </div>
                             </div>
                         </div>

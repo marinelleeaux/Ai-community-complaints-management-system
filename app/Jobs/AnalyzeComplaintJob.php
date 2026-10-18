@@ -41,9 +41,7 @@ class AnalyzeComplaintJob implements ShouldQueue
                 'english_summary' => $analysis['english_summary'] ?? $complaint->english_summary,
                 'ai_suggested_category' => $analysis['suggested_category'] ?? null,
                 'ai_suggested_priority' => $analysis['suggested_priority'] ?? 'medium',
-                'final_priority' => in_array($analysis['suggested_priority'] ?? '', ['high', 'urgent']) 
-                    ? $analysis['suggested_priority'] 
-                    : $complaint->final_priority,
+                'final_priority' => $analysis['suggested_priority'] ?? $complaint->final_priority,
                 'priority_explanation' => $analysis['priority_explanation'] ?? null,
                 'ai_analysis_status' => 'completed',
             ]);

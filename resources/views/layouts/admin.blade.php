@@ -316,11 +316,18 @@
 
                     <!-- 4. Complaints Management -->
                     <a href="{{ route('admin.complaints.index') }}" 
-                       class="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all {{ request()->routeIs('admin.complaints*') ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-purple-600/20' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-blue-600 dark:hover:text-blue-400' }}">
-                        <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('admin.complaints*') ? 'text-white' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        <span class="truncate">Complaints Management</span>
+                       class="flex items-center justify-between px-4 py-2.5 rounded-2xl text-xs font-bold transition-all {{ request()->routeIs('admin.complaints*') ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-purple-600/20' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-blue-600 dark:hover:text-blue-400' }}">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <svg class="w-4 h-4 shrink-0 {{ request()->routeIs('admin.complaints*') ? 'text-white' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <span class="truncate">Complaints Management</span>
+                        </div>
+                        @if($pendingComplaintsCount > 0)
+                            <span class="min-w-5 h-5 px-1.5 rounded-full text-[10px] font-black bg-rose-500 text-white flex items-center justify-center shadow-xs shrink-0 ml-2 animate-pulse" title="{{ $pendingComplaintsCount }} Active / Pending Complaints">
+                                {{ $pendingComplaintsCount }}
+                            </span>
+                        @endif
                     </a>
 
                     <!-- 5. Complaint Records & Reports -->

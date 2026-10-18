@@ -95,7 +95,7 @@
                         </div>
                         <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
                             <span class="text-slate-400 block font-medium text-[11px]">System Registration Date</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200 mt-1 block text-sm">{{ $resident->created_at->format('F d, Y • h:i A') }}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 mt-1 block text-sm">{{ $resident->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('F d, Y • h:i:s A') }} ({{ $resident->created_at->diffForHumans() }})</span>
                         </div>
                         <div class="sm:col-span-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
                             <span class="text-slate-400 block font-medium text-[11px]">Permanent Residence Address</span>

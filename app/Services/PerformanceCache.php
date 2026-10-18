@@ -34,6 +34,7 @@ class PerformanceCache
             Cache::forget("resident_dashboard_{$residentId}");
             Cache::forget("user_{$residentId}_unread_notifs_count");
             Cache::forget("user_{$residentId}_recent_notifs");
+            Cache::forget("user_{$residentId}_active_complaints_count");
         }
     }
 

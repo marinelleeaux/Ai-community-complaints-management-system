@@ -91,9 +91,17 @@
                                         {{ $complaint->final_priority }}
                                     </span>
                                 </div>
-                                @if($complaint->original_description && in_array($complaint->original_language, ['ceb', 'fil', 'tgl']))
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-1 italic">
-                                        <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 not-italic">🇵🇭 Dialect Input:</span> "{{ $complaint->original_description }}"
+                                @if($complaint->english_summary)
+                                    <div class="mt-2 p-2.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 text-xs text-blue-950 dark:text-blue-200">
+                                        <div class="flex items-center gap-1.5 font-bold text-[10px] text-blue-700 dark:text-blue-300 uppercase tracking-wider mb-0.5">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                                            <span>AI Verified Analysis</span>
+                                        </div>
+                                        <p class="line-clamp-2 leading-relaxed text-slate-700 dark:text-slate-300">{{ $complaint->english_summary }}</p>
+                                    </div>
+                                @elseif($complaint->original_description)
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-1.5">
+                                        {{ $complaint->original_description }}
                                     </p>
                                 @endif
                             </div>
@@ -105,11 +113,12 @@
                             </span>
                             <div class="text-right">
                                 <div class="text-xs font-bold text-slate-800 dark:text-slate-200">
-                                    {{ $complaint->created_at->format('M d, Y') }}
+                                    {{ $complaint->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('M d, Y') }}
                                 </div>
                                 <div class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold flex items-center justify-end gap-1 mt-0.5">
                                     <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/></svg>
-                                    <span>{{ $complaint->created_at->format('h:i A') }}</span>
+                                    <span>{{ $complaint->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('h:i A') }}</span>
+                                    <span class="text-slate-400 text-[10px]">({{ $complaint->created_at->diffForHumans() }})</span>
                                 </div>
                             </div>
                             

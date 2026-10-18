@@ -449,11 +449,12 @@
                                         </td>
                                         <td class="py-3 whitespace-nowrap">
                                             <div class="text-xs font-bold text-slate-800 dark:text-slate-200">
-                                                {{ $complaint->created_at->format('M d, Y') }}
+                                                {{ $complaint->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('M d, Y') }}
                                             </div>
                                             <div class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1 mt-0.5">
                                                 <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/></svg>
-                                                <span>{{ $complaint->created_at->format('h:i A') }}</span>
+                                                <span>{{ $complaint->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('h:i A') }}</span>
+                                                <span class="text-slate-400 text-[10px]">({{ $complaint->created_at->diffForHumans() }})</span>
                                             </div>
                                         </td>
                                         <td class="py-3">

@@ -208,7 +208,7 @@
             </div>
 
             <!-- Incident Location & Time Metadata -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 text-xs">
                 <div>
                     <span class="text-slate-400 block font-medium flex items-center gap-1">
                         <svg class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -237,6 +237,18 @@
                         @if($complaint->incident_time) ({{ $complaint->incident_time }}) @endif
                     </span>
                 </div>
+                <div>
+                    <span class="text-slate-400 block font-medium flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Date & Time Submitted
+                    </span>
+                    <span class="font-bold text-slate-700 dark:text-slate-200 text-sm mt-0.5 block">
+                        {{ $complaint->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('M d, Y') }}
+                    </span>
+                    <span class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold block">
+                        {{ $complaint->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('h:i:s A') }} ({{ $complaint->created_at->diffForHumans() }})
+                    </span>
+                </div>
             </div>
 
             <!-- Original Incident Description -->
@@ -248,34 +260,65 @@
             </div>
 
             <!-- AI Translation & Summary Card -->
-            @if($complaint->english_translation || $complaint->english_summary)
-                <div class="p-5 rounded-2xl bg-gradient-to-br from-blue-50/70 to-indigo-50/70 dark:from-blue-950/40 dark:to-indigo-950/40 border border-blue-100 dark:border-blue-900/50 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-lg bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shadow-xs">AI</span>
-                            <span class="text-xs font-bold text-blue-900 dark:text-blue-200">AI Civic Analysis (English Translation & Summary)</span>
+            <div class="p-5 md:p-6 rounded-2xl bg-gradient-to-br from-blue-50/90 via-indigo-50/60 to-purple-50/40 dark:from-[#0E1D38] dark:via-[#132547] dark:to-[#171A38] border border-blue-200/80 dark:border-blue-900/60 shadow-xs space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-blue-200/60 dark:border-blue-900/60">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-xs">AI</span>
+                        <div>
+                            <h4 class="text-sm font-extrabold text-blue-950 dark:text-white">
+                                AI Civic Analysis & Translation
+                            </h4>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400">Automated multi-dialect translation and priority triage</p>
                         </div>
-                        <span class="text-[10px] font-semibold text-blue-600 dark:text-blue-400">
-                            Language: {{ $complaint->original_language ?? 'Cebuano/Bisaya' }}
-                        </span>
                     </div>
-                    @if($complaint->english_summary)
-                        <div class="text-xs text-blue-950 dark:text-blue-300">
-                            <strong>English Summary:</strong> {{ $complaint->english_summary }}
-                        </div>
-                    @endif
-                    @if($complaint->priority_explanation)
-                        <div class="text-xs text-amber-900 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200/80 dark:border-amber-800/80">
-                            <strong>AI Urgency Assessment ({{ strtoupper($complaint->final_priority) }}):</strong> {{ $complaint->priority_explanation }}
-                        </div>
-                    @endif
-                    @if($complaint->english_translation && $complaint->english_translation !== $complaint->original_description)
-                        <div class="text-xs text-slate-600 dark:text-slate-400 pt-2 border-t border-blue-100 dark:border-blue-900/50">
-                            <strong>Full English Translation:</strong> {{ $complaint->english_translation }}
-                        </div>
-                    @endif
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                            {{ $complaint->original_language ?? 'Cebuano/Bisaya' }}
+                        </span>
+                        @if($complaint->ai_analysis_status)
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold {{ $complaint->ai_analysis_status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-amber-100 text-amber-700' }}">
+                                {{ ucfirst($complaint->ai_analysis_status) }}
+                            </span>
+                        @endif
+                    </div>
                 </div>
-            @endif
+
+                @if($complaint->english_summary)
+                    <div class="p-4 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-blue-100 dark:border-blue-900/50">
+                        <div class="text-[10px] font-black text-blue-700 dark:text-blue-300 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>English Summary (AI-Generated)</span>
+                        </div>
+                        <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-relaxed">{{ $complaint->english_summary }}</p>
+                    </div>
+                @endif
+
+                @if($complaint->priority_explanation)
+                    @php
+                        $priorityBadgeStyles = [
+                            'urgent' => 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/60 text-rose-800 dark:text-rose-200',
+                            'high' => 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/60 text-amber-800 dark:text-amber-200',
+                            'medium' => 'bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60 text-blue-800 dark:text-blue-200',
+                            'low' => 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300',
+                        ];
+                        $pExplanationStyle = $priorityBadgeStyles[$complaint->final_priority] ?? $priorityBadgeStyles['medium'];
+                    @endphp
+                    <div class="p-3.5 rounded-xl border {{ $pExplanationStyle }} text-xs">
+                        <div class="font-extrabold uppercase text-[10px] tracking-wider mb-1 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full {{ in_array($complaint->final_priority, ['urgent', 'high']) ? 'bg-rose-500 animate-pulse' : 'bg-blue-500' }}"></span>
+                            <span>AI Urgency Assessment: {{ strtoupper($complaint->final_priority) }} Priority</span>
+                        </div>
+                        <p class="leading-relaxed">{{ $complaint->priority_explanation }}</p>
+                    </div>
+                @endif
+
+                @if($complaint->english_translation && $complaint->english_translation !== $complaint->original_description)
+                    <div class="p-3.5 rounded-xl bg-white/60 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
+                        <span class="font-bold text-slate-800 dark:text-slate-200 block mb-1">Full English Translation:</span>
+                        <p class="leading-relaxed">{{ $complaint->english_translation }}</p>
+                    </div>
+                @endif
+            </div>
 
             <!-- Official Barangay Remarks -->
             <div>
@@ -548,7 +591,7 @@
                 <tr class="border-b border-slate-900">
                     <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Date & Time Filed:</td>
                     <td class="p-2 border-r border-slate-900 font-bold">
-                        {{ $complaint->created_at->format('F d, Y • h:i:s A') }}
+                        {{ $complaint->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('F d, Y • h:i:s A') }}
                     </td>
                     <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Classification:</td>
                     <td class="p-2 font-bold">{{ $complaint->category?->name ?? 'General Civic Concern' }}</td>
@@ -621,19 +664,26 @@
 
         <!-- Signatory Certification Blocks -->
         <div class="mt-8 pt-4 border-t-2 border-slate-900 page-break-inside-avoid">
-            <div class="grid grid-cols-2 gap-8 text-center text-xs">
-                <!-- Complainant Signature -->
+            <div class="grid grid-cols-3 gap-6 text-center text-xs">
+                <!-- Complainant Signature (Complainant Name Displayed) -->
                 <div class="flex flex-col justify-end">
                     <div class="border-b border-slate-900 w-3/4 mx-auto mb-1"></div>
                     <p class="font-bold text-[11px] uppercase">{{ $complaint->resident?->name }}</p>
                     <p class="text-[9px] text-slate-700">Complainant / Citizen Signature</p>
                 </div>
 
-                <!-- Receiving Desk Officer -->
+                <!-- Barangay Administrator (Administrator Attesting Desk) -->
                 <div class="flex flex-col justify-end">
                     <div class="border-b border-slate-900 w-3/4 mx-auto mb-1"></div>
-                    <p class="font-bold text-[11px] uppercase">BARANGAY SECRETARIAT</p>
-                    <p class="text-[9px] text-slate-700">Receiving Desk Officer / In-Charge</p>
+                    <p class="font-bold text-[11px] uppercase">BARANGAY ADMINISTRATOR</p>
+                    <p class="text-[9px] text-slate-700">Barangay Administrator / Attesting Officer</p>
+                </div>
+
+                <!-- Punong Barangay (No Name Printed - Official Line Only) -->
+                <div class="flex flex-col justify-end">
+                    <div class="border-b border-slate-900 w-3/4 mx-auto mb-1"></div>
+                    <p class="font-bold text-[11px] uppercase">&nbsp;</p>
+                    <p class="text-[9px] text-slate-700">Punong Barangay / Lupon Chairman</p>
                 </div>
             </div>
 

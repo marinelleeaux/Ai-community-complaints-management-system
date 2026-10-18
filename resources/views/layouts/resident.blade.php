@@ -38,6 +38,9 @@
     @php
         $user = Auth::user();
         $residentUserId = $user?->id;
+        $myActiveComplaintsCount = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_active_complaints_count", 30, function() use ($residentUserId) {
+            return \App\Models\Complaint::where('resident_id', $residentUserId)->whereIn('status', ['submitted', 'under_review'])->count();
+        }) : 0;
         $unreadNotifCount = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_unread_notifs_count", 120, function() use ($residentUserId) {
             return \App\Models\Notification::where('recipient_id', $residentUserId)->where('is_read', false)->count();
         }) : 0;
@@ -296,11 +299,18 @@
 
                     <!-- 2. My Complaints -->
                     <a href="{{ route('resident.complaints.index') }}" 
-                       class="flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all {{ request()->routeIs('resident.complaints.index*') || request()->routeIs('resident.complaints.show*') ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-purple-600/20' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-blue-600 dark:hover:text-blue-400' }}">
-                        <svg class="w-4 h-4 {{ request()->routeIs('resident.complaints.index*') || request()->routeIs('resident.complaints.show*') ? 'text-white' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                        </svg>
-                        <span>My Complaints</span>
+                       class="flex items-center justify-between px-4 py-2.5 rounded-2xl text-xs font-bold transition-all {{ request()->routeIs('resident.complaints.index*') || request()->routeIs('resident.complaints.show*') ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-purple-600/20' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-blue-600 dark:hover:text-blue-400' }}">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <svg class="w-4 h-4 {{ request()->routeIs('resident.complaints.index*') || request()->routeIs('resident.complaints.show*') ? 'text-white' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                            </svg>
+                            <span class="truncate">My Complaints</span>
+                        </div>
+                        @if($myActiveComplaintsCount > 0)
+                            <span class="min-w-5 h-5 px-1.5 rounded-full text-[10px] font-black bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0 ml-2 animate-pulse" title="{{ $myActiveComplaintsCount }} Active Complaints">
+                                {{ $myActiveComplaintsCount }}
+                            </span>
+                        @endif
                     </a>
 
                     <!-- 3. New Complaint -->

@@ -102,10 +102,10 @@
                         <div>
                             <span class="text-slate-400 block font-medium">Date & Time Submitted</span>
                             <span class="font-bold text-slate-800 dark:text-slate-200 block">
-                                {{ $complaint->created_at->format('M d, Y') }}
+                                {{ $complaint->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('M d, Y') }}
                             </span>
                             <span class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold block">
-                                {{ $complaint->created_at->format('h:i:s A') }}
+                                {{ $complaint->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('h:i:s A') }} ({{ $complaint->created_at->diffForHumans() }})
                             </span>
                         </div>
                         <div>
@@ -648,7 +648,7 @@
                 <tr class="border-b border-slate-900">
                     <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Date & Time Submitted:</td>
                     <td class="p-2 border-r border-slate-900 font-bold">
-                        {{ $complaint->created_at->format('F d, Y • h:i:s A') }}
+                        {{ $complaint->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('F d, Y • h:i:s A') }}
                     </td>
                     <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Case Classification:</td>
                     <td class="p-2 font-bold">{{ $complaint->category?->name ?? 'General Civic Concern' }}</td>
@@ -733,24 +733,24 @@
             </p>
 
             <div class="grid grid-cols-3 gap-6 text-center text-xs">
-                <!-- Complainant Signature -->
+                <!-- Complainant Signature (Complainant Name Displayed) -->
                 <div class="flex flex-col justify-end">
                     <div class="border-b border-slate-900 w-3/4 mx-auto mb-1"></div>
                     <p class="font-bold text-[11px] uppercase">{{ $complaint->resident?->name }}</p>
                     <p class="text-[9px] text-slate-700">Complainant / Affiant</p>
                 </div>
 
-                <!-- Receiving Desk Officer -->
+                <!-- Barangay Administrator (Administrator Name Displayed) -->
                 <div class="flex flex-col justify-end">
                     <div class="border-b border-slate-900 w-3/4 mx-auto mb-1"></div>
-                    <p class="font-bold text-[11px] uppercase">JAN AUDITOR</p>
-                    <p class="text-[9px] text-slate-700">Barangay Secretary / Receiving Desk</p>
+                    <p class="font-bold text-[11px] uppercase">{{ auth()->user()?->name ?? 'BARANGAY ADMINISTRATOR' }}</p>
+                    <p class="text-[9px] text-slate-700">Barangay Administrator / Attesting Officer</p>
                 </div>
 
-                <!-- Punong Barangay -->
+                <!-- Punong Barangay (No Name Printed - Official Line Only) -->
                 <div class="flex flex-col justify-end">
                     <div class="border-b border-slate-900 w-3/4 mx-auto mb-1"></div>
-                    <p class="font-bold text-[11px] uppercase">HON. ANTONIO DELA CRUZ</p>
+                    <p class="font-bold text-[11px] uppercase">&nbsp;</p>
                     <p class="text-[9px] text-slate-700">Punong Barangay / Lupon Chairman</p>
                 </div>
             </div>

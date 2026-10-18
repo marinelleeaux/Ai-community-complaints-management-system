@@ -99,8 +99,12 @@
                                             {{ $c->title }}
                                         </a>
                                     </div>
-                                    <div class="text-[11px] text-slate-400 truncate mt-0.5">
-                                        {{ $c->original_description }}
+                                    <div class="text-[11px] truncate mt-0.5">
+                                        @if($c->english_summary)
+                                            <span class="font-extrabold text-blue-600 dark:text-blue-400">AI:</span> <span class="text-slate-600 dark:text-slate-300 font-medium">{{ $c->english_summary }}</span>
+                                        @else
+                                            <span class="text-slate-400">{{ $c->original_description }}</span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="p-4">
@@ -136,11 +140,12 @@
                                 </td>
                                 <td class="p-4 whitespace-nowrap">
                                     <div class="text-xs font-bold text-slate-800 dark:text-slate-200">
-                                        {{ $c->created_at->format('M d, Y') }}
+                                        {{ $c->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('M d, Y') }}
                                     </div>
                                     <div class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1 mt-0.5">
                                         <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/></svg>
-                                        <span>{{ $c->created_at->format('h:i A') }}</span>
+                                        <span>{{ $c->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('h:i A') }}</span>
+                                        <span class="text-slate-400 text-[10px]">({{ $c->created_at->diffForHumans() }})</span>
                                     </div>
                                     @if($c->incident_date)
                                         <div class="text-[10px] text-slate-400 mt-1">

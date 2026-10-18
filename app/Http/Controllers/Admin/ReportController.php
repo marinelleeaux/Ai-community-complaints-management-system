@@ -134,8 +134,8 @@ class ReportController extends Controller
                     $c->incident_location,
                     $c->incident_date ? $c->incident_date->format('Y-m-d') : 'N/A',
                     $incidentTimeFormatted,
-                    $c->created_at->format('Y-m-d'),
-                    $c->created_at->format('h:i:s A'),
+                    $c->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('Y-m-d'),
+                    $c->created_at->timezone(config('app.timezone', 'Asia/Manila'))->format('h:i:s A'),
                     ucwords(str_replace('_', ' ', $c->status)),
                     strtoupper($c->final_priority),
                     $c->resident?->name ?? 'Anonymous Citizen',
@@ -144,7 +144,7 @@ class ReportController extends Controller
                     preg_replace('/\s+/', ' ', trim((string) $c->original_description)),
                     preg_replace('/\s+/', ' ', trim((string) ($c->english_summary ?? ''))),
                     $c->assignedOfficial?->name ?? 'Unassigned / Secretariat',
-                    $c->resolved_at ? $c->resolved_at->format('Y-m-d h:i A') : 'Pending Resolution',
+                    $c->resolved_at ? $c->resolved_at->timezone(config('app.timezone', 'Asia/Manila'))->format('Y-m-d h:i A') : 'Pending Resolution',
                     preg_replace('/\s+/', ' ', trim((string) ($c->resident_visible_remarks ?? 'None'))),
                 ]);
             }
