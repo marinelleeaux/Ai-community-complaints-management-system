@@ -19,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Support\Facades\Auth::provider('cached-eloquent', function ($app, array $config) {
+            return new \App\Auth\CachedEloquentUserProvider($app['hash'], $config['model']);
+        });
     }
 }

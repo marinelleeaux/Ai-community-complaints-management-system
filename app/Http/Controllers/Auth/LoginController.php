@@ -113,6 +113,11 @@ class LoginController extends Controller
             AuditLog::log(Auth::id(), 'logout', 'users', Auth::id());
         }
 
+        $user = Auth::user();
+        if ($user) {
+            \Illuminate\Support\Facades\Cache::forget("auth_user_{$user->id}");
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

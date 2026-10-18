@@ -52,7 +52,17 @@ class ComplaintController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
-        $complaints = $query->latest()->paginate(10)->withQueryString();
+        if (empty($request->all())) {
+            $complaints = \Illuminate\Support\Facades\Cache::remember("resident_{$user->id}_complaints_default", \App\Services\PerformanceCache::FEEDS_TTL, function () use ($user) {
+                return Complaint::where('resident_id', $user->id)
+                    ->with(['category', 'purok'])
+                    ->latest()
+                    ->paginate(10);
+            });
+        } else {
+            $complaints = $query->latest()->paginate(10)->withQueryString();
+        }
+
         $categories = ComplaintCategory::getActiveCached();
 
         return view('resident.complaints.index', compact('complaints', 'categories'));

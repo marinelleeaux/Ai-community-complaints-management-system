@@ -38,7 +38,18 @@ class ResidentController extends Controller
             $query->where('purok_id', $request->purok_id);
         }
 
-        $residents = $query->latest()->paginate(15)->withQueryString();
+        if (empty($request->all())) {
+            $residents = \Illuminate\Support\Facades\Cache::remember('admin_residents_index_default', \App\Services\PerformanceCache::FEEDS_TTL, function () {
+                return User::where('role', 'resident')
+                    ->where('account_status', '!=', 'pending')
+                    ->with('purok')
+                    ->latest()
+                    ->paginate(15);
+            });
+        } else {
+            $residents = $query->latest()->paginate(15)->withQueryString();
+        }
+
         $puroks = Purok::getActiveCached();
 
         return view('admin.residents.index', compact('residents', 'puroks'));
@@ -46,11 +57,13 @@ class ResidentController extends Controller
 
     public function pending()
     {
-        $residents = User::where('role', 'resident')
-            ->where('account_status', 'pending')
-            ->with(['purok', 'verificationRequests'])
-            ->latest()
-            ->paginate(15);
+        $residents = \Illuminate\Support\Facades\Cache::remember('admin_residents_pending_default', \App\Services\PerformanceCache::FEEDS_TTL, function () {
+            return User::where('role', 'resident')
+                ->where('account_status', 'pending')
+                ->with(['purok', 'verificationRequests'])
+                ->latest()
+                ->paginate(15);
+        });
 
         return view('admin.residents.pending', compact('residents'));
     }

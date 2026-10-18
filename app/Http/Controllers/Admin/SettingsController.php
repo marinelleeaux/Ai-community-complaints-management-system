@@ -27,8 +27,12 @@ class SettingsController extends Controller
     public function index()
     {
         $admin = Auth::user();
-        $puroks = Purok::withCount('complaints')->orderBy('name')->get();
-        $categories = ComplaintCategory::withCount('complaints')->orderBy('name')->get();
+        $puroks = \Illuminate\Support\Facades\Cache::remember('settings_puroks_with_counts', \App\Services\PerformanceCache::FEEDS_TTL, function () {
+            return Purok::withCount('complaints')->orderBy('name')->get();
+        });
+        $categories = \Illuminate\Support\Facades\Cache::remember('settings_categories_with_counts', \App\Services\PerformanceCache::FEEDS_TTL, function () {
+            return ComplaintCategory::withCount('complaints')->orderBy('name')->get();
+        });
 
         $aiStatus = [
             'is_configured' => $this->aiService->isConfigured(),

@@ -69,11 +69,13 @@ class User extends Authenticatable
     protected static function booted(): void
     {
         static::saved(function ($user) {
+            \Illuminate\Support\Facades\Cache::forget("auth_user_{$user->id}");
             \App\Services\PerformanceCache::clearAdminDashboard();
             \App\Services\PerformanceCache::clearResident($user->id);
         });
 
         static::deleted(function ($user) {
+            \Illuminate\Support\Facades\Cache::forget("auth_user_{$user->id}");
             \App\Services\PerformanceCache::clearAdminDashboard();
             \App\Services\PerformanceCache::clearResident($user->id);
         });

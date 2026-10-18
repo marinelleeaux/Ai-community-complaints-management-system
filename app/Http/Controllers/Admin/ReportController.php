@@ -41,14 +41,39 @@ class ReportController extends Controller
             $query->where('final_priority', $request->priority);
         }
 
-        $totalFiltered = (clone $query)->count();
-        $resolvedFiltered = (clone $query)->where('status', 'resolved')->count();
-        $inProgressFiltered = (clone $query)->whereIn('status', ['in_progress', 'under_review'])->count();
-        $resolutionRate = $totalFiltered > 0 ? round(($resolvedFiltered / $totalFiltered) * 100, 1) : 0;
+        if (empty($request->all())) {
+            $reportData = \Illuminate\Support\Facades\Cache::remember('admin_reports_default_data', \App\Services\PerformanceCache::FEEDS_TTL, function () use ($query) {
+                $stats = (clone $query)->selectRaw("
+                    count(*) as total,
+                    count(case when status = 'resolved' then 1 end) as resolved,
+                    count(case when status in ('in_progress', 'under_review') then 1 end) as in_progress
+                ")->first();
 
-        $complaints = $query->latest('incident_date')->paginate(15)->withQueryString();
-        $categories = ComplaintCategory::where('is_active', true)->get();
-        $puroks = Purok::where('is_active', true)->get();
+                $totalFiltered = (int) ($stats->total ?? 0);
+                $resolvedFiltered = (int) ($stats->resolved ?? 0);
+                $inProgressFiltered = (int) ($stats->in_progress ?? 0);
+                $resolutionRate = $totalFiltered > 0 ? round(($resolvedFiltered / $totalFiltered) * 100, 1) : 0;
+                $complaints = $query->latest('incident_date')->paginate(15);
+
+                return compact('totalFiltered', 'resolvedFiltered', 'inProgressFiltered', 'resolutionRate', 'complaints');
+            });
+            extract($reportData);
+        } else {
+            $stats = (clone $query)->selectRaw("
+                count(*) as total,
+                count(case when status = 'resolved' then 1 end) as resolved,
+                count(case when status in ('in_progress', 'under_review') then 1 end) as in_progress
+            ")->first();
+
+            $totalFiltered = (int) ($stats->total ?? 0);
+            $resolvedFiltered = (int) ($stats->resolved ?? 0);
+            $inProgressFiltered = (int) ($stats->in_progress ?? 0);
+            $resolutionRate = $totalFiltered > 0 ? round(($resolvedFiltered / $totalFiltered) * 100, 1) : 0;
+            $complaints = $query->latest('incident_date')->paginate(15)->withQueryString();
+        }
+
+        $categories = ComplaintCategory::getActiveCached();
+        $puroks = Purok::getActiveCached();
 
         return view('admin.reports.index', compact(
             'complaints',

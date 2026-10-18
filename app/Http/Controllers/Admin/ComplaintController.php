@@ -13,6 +13,7 @@ use App\Models\Purok;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class ComplaintController extends Controller
@@ -48,7 +49,16 @@ class ComplaintController extends Controller
             $query->where('purok_id', $request->purok_id);
         }
 
-        $complaints = $query->latest()->paginate(15)->withQueryString();
+        if (empty($request->all())) {
+            $complaints = \Illuminate\Support\Facades\Cache::remember('admin_complaints_index_default', \App\Services\PerformanceCache::FEEDS_TTL, function () {
+                return Complaint::with(['resident', 'category', 'purok', 'assignedOfficial'])
+                    ->latest()
+                    ->paginate(15);
+            });
+        } else {
+            $complaints = $query->latest()->paginate(15)->withQueryString();
+        }
+
         $categories = ComplaintCategory::getActiveCached();
         $puroks = Purok::getActiveCached();
 

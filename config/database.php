@@ -98,6 +98,10 @@ return [
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
             'timezone' => env('DB_TIMEZONE', 'Asia/Manila'),
+            'options' => [
+                \PDO::ATTR_PERSISTENT => true,
+                \PDO::ATTR_TIMEOUT => 5,
+            ],
         ],
 
         'sqlsrv' => [

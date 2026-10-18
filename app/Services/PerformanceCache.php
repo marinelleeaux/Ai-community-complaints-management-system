@@ -24,6 +24,11 @@ class PerformanceCache
         Cache::forget('admin_nav_pending_complaints');
         Cache::forget('admin_nav_pending_residents');
         Cache::forget('admin_officials_list');
+        Cache::forget('admin_complaints_index_default');
+        Cache::forget('admin_residents_index_default');
+        Cache::forget('admin_residents_pending_default');
+        Cache::forget('admin_announcements_index_default');
+        Cache::forget('admin_reports_default_data');
     }
 
     /**
@@ -33,6 +38,7 @@ class PerformanceCache
     {
         if ($residentId) {
             Cache::forget("resident_dashboard_{$residentId}");
+            Cache::forget("resident_{$residentId}_complaints_default");
             Cache::forget("user_{$residentId}_unread_notifs_count");
             Cache::forget("user_{$residentId}_recent_notifs");
             Cache::forget("user_{$residentId}_active_complaints_count");
@@ -47,6 +53,8 @@ class PerformanceCache
         Cache::forget('active_puroks_cached');
         Cache::forget('active_categories_cached');
         Cache::forget('published_announcements_count');
+        Cache::forget('settings_puroks_with_counts');
+        Cache::forget('settings_categories_with_counts');
     }
 
     /**

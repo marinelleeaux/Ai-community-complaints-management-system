@@ -31,7 +31,13 @@ class AnnouncementController extends Controller
             });
         }
 
-        $announcements = $query->latest()->paginate(10)->withQueryString();
+        if (empty($request->all())) {
+            $announcements = \Illuminate\Support\Facades\Cache::remember('admin_announcements_index_default', \App\Services\PerformanceCache::FEEDS_TTL, function () {
+                return Announcement::with('author')->latest()->paginate(10);
+            });
+        } else {
+            $announcements = $query->latest()->paginate(10)->withQueryString();
+        }
 
         return view('admin.announcements.index', compact('announcements'));
     }
@@ -80,6 +86,9 @@ class AnnouncementController extends Controller
         AuditLog::log($admin->id, 'created_announcement', 'announcements', (string) $announcement->id, [
             'title' => $announcement->title,
         ]);
+
+        \Illuminate\Support\Facades\Cache::forget('admin_announcements_index_default');
+        \App\Services\PerformanceCache::clearLookups();
 
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement published successfully.');
     }
@@ -134,6 +143,9 @@ class AnnouncementController extends Controller
             'title' => $announcement->title,
         ]);
 
+        \Illuminate\Support\Facades\Cache::forget('admin_announcements_index_default');
+        \App\Services\PerformanceCache::clearLookups();
+
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement updated successfully.');
     }
 
@@ -144,6 +156,9 @@ class AnnouncementController extends Controller
         $announcement->delete();
 
         AuditLog::log(Auth::id(), 'deleted_announcement', 'announcements', (string) $id, ['title' => $title]);
+
+        \Illuminate\Support\Facades\Cache::forget('admin_announcements_index_default');
+        \App\Services\PerformanceCache::clearLookups();
 
         return redirect()->route('admin.announcements.index')->with('success', 'Announcement removed.');
     }
@@ -158,6 +173,9 @@ class AnnouncementController extends Controller
         ]);
 
         AuditLog::log(Auth::id(), 'toggled_announcement_publish', 'announcements', (string) $id, ['new_status' => $newStatus]);
+
+        \Illuminate\Support\Facades\Cache::forget('admin_announcements_index_default');
+        \App\Services\PerformanceCache::clearLookups();
 
         return back()->with('success', "Announcement status updated to {$newStatus}.");
     }
