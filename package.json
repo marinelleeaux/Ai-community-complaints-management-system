@@ -3,7 +3,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "echo 'Assets pre-built'",
+        "build:local": "vite build",
         "dev": "vite",
         "vercel-build": "echo 'Assets pre-built'"
     },
