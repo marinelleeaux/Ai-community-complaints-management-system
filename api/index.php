@@ -28,5 +28,11 @@ putenv('APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php');
 $_SERVER['SCRIPT_NAME'] = '/index.php';
 $_SERVER['SCRIPT_FILENAME'] = __DIR__ . '/../public/index.php';
 
+// Force HTTPS in serverless environment to prevent mixed-content blocks
+if ((isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') || (isset($_SERVER['HTTP_HOST']) && str_contains($_SERVER['HTTP_HOST'], 'vercel.app'))) {
+    $_SERVER['HTTPS'] = 'on';
+    $_SERVER['SERVER_PORT'] = 443;
+}
+
 // Delegate execution to Laravel's front controller
 require __DIR__ . '/../public/index.php';
