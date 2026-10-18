@@ -17,9 +17,13 @@ class LoginController extends Controller
     {
     }
 
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
-        if (Auth::check()) {
+        if ($request->has('logout') || $request->has('switch')) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        } elseif (Auth::check()) {
             return $this->redirectBasedOnRole(Auth::user());
         }
 
@@ -42,8 +46,17 @@ class LoginController extends Controller
         $authResult = $this->authService->signIn($email, $password);
 
         if (! $authResult['success']) {
+            $msg = 'Invalid credentials. The username or password you entered is incorrect. Please check your credentials and try again.';
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                ], 422);
+            }
+
             throw ValidationException::withMessages([
-                'email' => [$authResult['error'] ?? 'These credentials do not match our records.'],
+                'email' => [$msg],
             ]);
         }
 
@@ -51,8 +64,12 @@ class LoginController extends Controller
         $user = User::where('email', $email)->first();
 
         if (! $user) {
+            $msg = 'Invalid credentials. The username or password you entered is incorrect. Please check your credentials and try again.';
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
             throw ValidationException::withMessages([
-                'email' => ['No registered profile found for this account. Please register first.'],
+                'email' => [$msg],
             ]);
         }
 
@@ -68,6 +85,24 @@ class LoginController extends Controller
         AuditLog::log($user->id, 'login', 'users', $user->id, [
             'method' => $authResult['is_local'] ?? false ? 'local' : 'supabase',
         ]);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            $targetUrl = route('resident.dashboard');
+            if ($user->isAdmin() || $user->isOfficial()) {
+                $targetUrl = route('admin.dashboard');
+            } elseif ($user->isPending()) {
+                $targetUrl = route('pending-approval');
+            } elseif ($user->isRejected()) {
+                $targetUrl = route('registration-rejected');
+            } elseif (! $user->isActive()) {
+                $targetUrl = route('access-denied');
+            }
+
+            return response()->json([
+                'success' => true,
+                'redirect' => $targetUrl,
+            ]);
+        }
 
         return $this->redirectBasedOnRole($user);
     }
@@ -88,7 +123,7 @@ class LoginController extends Controller
     protected function redirectBasedOnRole(User $user)
     {
         if ($user->isAdmin() || $user->isOfficial()) {
-            return redirect()->intended(route('admin.dashboard'));
+            return redirect()->route('admin.dashboard');
         }
 
         if (! $user->isActive()) {
@@ -103,6 +138,6 @@ class LoginController extends Controller
             return redirect()->route('pending-approval');
         }
 
-        return redirect()->intended(route('resident.dashboard'));
+        return redirect()->route('resident.dashboard');
     }
 }

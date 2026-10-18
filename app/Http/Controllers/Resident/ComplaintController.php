@@ -76,8 +76,7 @@ class ComplaintController extends Controller
             'incident_location' => ['required', 'string', 'max:255'],
             'purok_id' => ['required', 'exists:puroks,id'],
             'incident_date' => ['required', 'date', 'before_or_equal:today'],
-            'incident_time' => ['nullable', 'date_format:H:i'],
-            'attachments.*' => ['nullable', 'file', 'mimes:jpeg,png,jpg,pdf,doc,docx', 'max:5120'],
+            'attachments.*' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,webp,svg,bmp,pdf,doc,docx', 'max:10240'],
         ]);
 
         $user = Auth::user();
@@ -158,7 +157,7 @@ class ComplaintController extends Controller
             ->with('success', "Complaint submitted successfully! Your tracking reference number is {$complaint->reference_number}.");
     }
 
-    public function show(int $id)
+    public function show(int|string $id)
     {
         $complaint = Complaint::with(['category', 'purok', 'attachments', 'statusHistory.changer'])
             ->findOrFail($id);
@@ -166,6 +165,128 @@ class ComplaintController extends Controller
         Gate::authorize('view', $complaint);
 
         return view('resident.complaints.show', compact('complaint'));
+    }
+
+    public function edit(int|string $id)
+    {
+        $complaint = Complaint::with(['category', 'purok', 'attachments'])
+            ->where('id', $id)
+            ->where('resident_id', Auth::id())
+            ->firstOrFail();
+
+        Gate::authorize('update', $complaint);
+
+        $categories = ComplaintCategory::where('is_active', true)->get();
+        $puroks = Purok::where('is_active', true)->get();
+
+        return view('resident.complaints.edit', compact('complaint', 'categories', 'puroks'));
+    }
+
+    public function update(Request $request, int|string $id)
+    {
+        $complaint = Complaint::with(['category', 'purok'])
+            ->where('id', $id)
+            ->where('resident_id', Auth::id())
+            ->firstOrFail();
+
+        Gate::authorize('update', $complaint);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'category_id' => 'required|exists:complaint_categories,id',
+            'purok_id' => 'required|exists:puroks,id',
+            'incident_date' => 'nullable|date',
+            'incident_location' => 'nullable|string|max:255',
+            'original_description' => 'required|string|min:10',
+        ]);
+
+        $beforeData = [
+            'title' => $complaint->title,
+            'category_name' => $complaint->category?->name ?? 'General Inquiry',
+            'purok_name' => $complaint->purok?->name ?? 'Barangay Wide',
+            'incident_date' => $complaint->incident_date ? $complaint->incident_date->format('M d, Y') : 'Not specified',
+            'incident_location' => $complaint->incident_location ?? 'Not specified',
+            'original_description' => $complaint->original_description,
+        ];
+
+        $newCategory = ComplaintCategory::find($validated['category_id']);
+        $newPurok = Purok::find($validated['purok_id']);
+        $formattedNewDate = !empty($validated['incident_date']) ? \Carbon\Carbon::parse($validated['incident_date'])->format('M d, Y') : 'Not specified';
+
+        $afterData = [
+            'title' => $validated['title'],
+            'category_name' => $newCategory?->name ?? 'General Inquiry',
+            'purok_name' => $newPurok?->name ?? 'Barangay Wide',
+            'incident_date' => $formattedNewDate,
+            'incident_location' => $validated['incident_location'] ?? 'Not specified',
+            'original_description' => $validated['original_description'],
+        ];
+
+        $history = $complaint->edit_history ?? [];
+        $history[] = [
+            'edited_at' => now()->toIso8601String(),
+            'edited_at_formatted' => now()->format('M d, Y • h:i A'),
+            'editor_name' => Auth::user()->name,
+            'before' => $beforeData,
+            'after' => $afterData,
+        ];
+
+        $complaint->update([
+            'title' => $validated['title'],
+            'category_id' => $validated['category_id'],
+            'purok_id' => $validated['purok_id'],
+            'incident_date' => $validated['incident_date'],
+            'incident_location' => $validated['incident_location'],
+            'original_description' => $validated['original_description'],
+            'english_translation' => $validated['original_description'],
+            'edit_history' => $history,
+        ]);
+
+        AuditLog::log(Auth::id(), 'updated_complaint', 'complaints', (string) $complaint->id, [
+            'reference_number' => $complaint->reference_number,
+            'title' => $complaint->title,
+            'before' => $beforeData,
+            'after' => $afterData,
+        ]);
+
+        try {
+            AnalyzeComplaintJob::dispatch($complaint->id);
+        } catch (\Exception $e) {
+            // Keep going even if queue error
+        }
+
+        return redirect()->route('resident.complaints.show', $complaint->id)
+            ->with('success', "Complaint {$complaint->reference_number} updated successfully.");
+    }
+
+    public function destroy(int|string $id)
+    {
+        $complaint = Complaint::where('id', $id)
+            ->where('resident_id', Auth::id())
+            ->firstOrFail();
+
+        Gate::authorize('delete', $complaint);
+
+        $ref = $complaint->reference_number;
+
+        // Clean up attachments
+        foreach ($complaint->attachments as $att) {
+            try {
+                $this->storageService->deleteFile($att->file_path);
+            } catch (\Exception $e) {
+                // Ignore storage delete errors
+            }
+            $att->delete();
+        }
+
+        $complaint->delete();
+
+        AuditLog::log(Auth::id(), 'deleted_complaint', 'complaints', (string) $id, [
+            'reference_number' => $ref,
+        ]);
+
+        return redirect()->route('resident.complaints.index')
+            ->with('success', "Complaint {$ref} deleted successfully.");
     }
 
     public function history()

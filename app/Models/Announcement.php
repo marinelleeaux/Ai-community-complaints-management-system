@@ -54,8 +54,14 @@ class Announcement extends Model
             if (str_starts_with($this->cover_image_path, 'http')) {
                 return $this->cover_image_path;
             }
-            return asset('storage/' . $this->cover_image_path);
+            if (file_exists(public_path('storage/' . $this->cover_image_path)) || file_exists(storage_path('app/public/' . $this->cover_image_path))) {
+                return asset('storage/' . $this->cover_image_path);
+            }
+            $supabaseUrl = config('supabase.url');
+            if ($supabaseUrl && ! str_contains($supabaseUrl, 'your-project')) {
+                return rtrim($supabaseUrl, '/') . '/storage/v1/object/public/' . ltrim($this->cover_image_path, '/');
+            }
         }
-        return null;
+        return asset('images/announcement-placeholder.svg');
     }
 }

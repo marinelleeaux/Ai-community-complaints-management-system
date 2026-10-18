@@ -19,7 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'resident.approved' => EnsureApprovedResident::class,
             'account.active' => EnsureAccountActive::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'login',
+            'logout',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            return redirect()->route('login', ['role' => 'admin', 'switch' => 1])
+                ->with('error', 'Your session expired. Please sign in again.');
+        });
     })->create();

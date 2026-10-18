@@ -28,17 +28,14 @@ class ComplaintPolicy
 
     public function update(User $user, Complaint $complaint): bool
     {
-        if ($user->isAdmin() || $user->isOfficial()) {
-            return true;
-        }
-
-        // Residents can only edit their own complaint if still in 'submitted' status
-        return $complaint->resident_id === $user->id && $complaint->status === 'submitted';
+        // Strictly only the resident who owns the complaint can edit it (while submitted or under review)
+        return $user->isResident() && $complaint->resident_id === $user->id && in_array($complaint->status, ['submitted', 'under_review']);
     }
 
     public function delete(User $user, Complaint $complaint): bool
     {
-        return $user->isAdmin();
+        // Strictly only the resident who owns the complaint can delete it (while submitted or under review)
+        return $user->isResident() && $complaint->resident_id === $user->id && in_array($complaint->status, ['submitted', 'under_review']);
     }
 
     public function addInternalNote(User $user, Complaint $complaint): bool

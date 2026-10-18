@@ -63,7 +63,7 @@
                             <a href="{{ route('admin.announcements.edit', $ann->id) }}" class="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xs font-bold hover:bg-blue-100">
                                 Edit
                             </a>
-                            <form method="POST" action="{{ route('admin.announcements.destroy', $ann->id) }}" onsubmit="return confirm('Permanently delete this announcement?');">
+                            <form method="POST" action="{{ route('admin.announcements.destroy', $ann->id) }}" onsubmit="return confirmAction(event, 'Are you sure you want to permanently delete this announcement?', 'Delete Announcement', 'Yes, Delete');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="px-3 py-1.5 rounded-xl text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold">

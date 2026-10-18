@@ -104,11 +104,16 @@
                                     </div>
                                 </td>
                                 <td class="p-4">
-                                    <div class="font-bold text-slate-800 dark:text-slate-200">
-                                        {{ $c->resident?->name ?? 'N/A' }}
-                                    </div>
-                                    <div class="text-[11px] text-slate-400">
-                                        {{ $c->resident?->phone }}
+                                    <div class="flex items-center gap-2.5">
+                                        <img src="{{ $c->resident?->avatarUrl() }}" alt="{{ $c->resident?->name }}" class="w-8 h-8 rounded-xl object-cover shrink-0 ring-1 ring-slate-200 dark:ring-slate-700 bg-slate-100 dark:bg-slate-800">
+                                        <div class="min-w-0">
+                                            <div class="font-bold text-slate-800 dark:text-slate-200 truncate">
+                                                {{ $c->resident?->name ?? 'N/A' }}
+                                            </div>
+                                            <div class="text-[11px] text-slate-400">
+                                                {{ $c->resident?->phone }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="p-4">

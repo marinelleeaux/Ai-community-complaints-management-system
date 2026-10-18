@@ -19,10 +19,54 @@ class AuthenticationTest extends TestCase
         Purok::create(['name' => 'Purok 2', 'is_active' => true]);
     }
 
-    public function test_guest_is_redirected_to_login_from_home(): void
+    public function test_guest_can_view_home_landing_page(): void
     {
         $response = $this->get('/');
-        $response->assertRedirect(route('login'));
+        $response->assertStatus(200);
+        $response->assertSee('AI-Community');
+    }
+
+    public function test_guest_can_view_about_page(): void
+    {
+        $response = $this->get(route('about'));
+        $response->assertStatus(200);
+        $response->assertSee('About Our System');
+        $response->assertSee('Our Purpose');
+        $response->assertSee('Our Vision');
+        $response->assertSee('Our Mission');
+        $response->assertSee('Our Values');
+        $response->assertSee('A responsive barangay for a better tomorrow');
+    }
+
+    public function test_guest_can_view_how_it_works_page(): void
+    {
+        $response = $this->get(route('how-it-works'));
+        $response->assertStatus(200);
+        $response->assertSee('HOW IT WORKS');
+        $response->assertSee('Simple Steps, Real Solutions');
+        $response->assertSee('Submit Your Complaint');
+        $response->assertSee('AI Translation');
+        $response->assertSee('Barangay Review');
+        $response->assertSee('Track Progress');
+    }
+
+    public function test_guest_can_view_and_submit_contact_page(): void
+    {
+        $response = $this->get(route('contact'));
+        $response->assertStatus(200);
+        $response->assertSee('GET IN TOUCH');
+        $response->assertSee('Contact Us');
+        $response->assertSee('Send Us a Message');
+        $response->assertSee('+63 917 123 4567');
+        $response->assertSee('northpoblacion.maramag@gmail.com');
+
+        $postResponse = $this->post(route('contact.send'), [
+            'name' => 'Maria Santos',
+            'email' => 'maria.santos@gmail.com',
+            'subject' => 'Streetlight Inquiry',
+            'message' => 'Good day, may we know the schedule of inspection for Purok 3 streetlights?',
+        ]);
+        $postResponse->assertSessionHas('success');
     }
 
     public function test_guest_can_view_login_page(): void
@@ -159,11 +203,11 @@ class AuthenticationTest extends TestCase
             'address' => 'Sample',
         ]);
 
-        // Resident blocked from admin dashboard
+        // Resident blocked from admin dashboard (Strict Portal Segregation)
         $response = $this->actingAs($resident)->get(route('admin.dashboard'));
-        $response->assertRedirect(route('access-denied'));
+        $response->assertRedirect(route('resident.dashboard'));
 
-        // Admin allowed
+        // Admin allowed on admin dashboard
         $admin = User::create([
             'name' => 'Barangay Captain',
             'email' => 'admin@northpoblacion.gov.ph',
@@ -175,8 +219,10 @@ class AuthenticationTest extends TestCase
 
         $adminResponse = $this->actingAs($admin)->get(route('admin.dashboard'));
         $adminResponse->assertStatus(200);
-        $adminResponse->assertSee('Complaints by Category');
-        $adminResponse->assertSee('Pending Residents');
+
+        // Admin blocked from resident dashboard (Strict Portal Segregation)
+        $adminToResident = $this->actingAs($admin)->get(route('resident.dashboard'));
+        $adminToResident->assertRedirect(route('admin.dashboard'));
     }
 
     public function test_user_can_logout(): void
@@ -192,6 +238,34 @@ class AuthenticationTest extends TestCase
 
         $response = $this->actingAs($admin)->post(route('logout'));
         $response->assertRedirect(route('login'));
+        $this->assertGuest();
+    }
+
+    public function test_invalid_credentials_returns_exact_custom_error_message(): void
+    {
+        $response = $this->post(route('login'), [
+            'email' => 'wrong.account@example.com',
+            'password' => 'WrongPassword123!',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'email' => 'Invalid credentials. The username or password you entered is incorrect. Please check your credentials and try again.',
+        ]);
+        $this->assertGuest();
+    }
+
+    public function test_invalid_credentials_via_json_request_returns_custom_error_message(): void
+    {
+        $response = $this->postJson(route('login'), [
+            'email' => 'wrong.account@example.com',
+            'password' => 'WrongPassword123!',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'Invalid credentials. The username or password you entered is incorrect. Please check your credentials and try again.',
+        ]);
         $this->assertGuest();
     }
 }

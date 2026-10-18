@@ -14,10 +14,17 @@
             Your account does not have permission to view this resource, or your profile status has been deactivated.
         </p>
 
-        <div class="mt-6">
-            <a href="{{ route('login') }}" class="inline-block py-3 px-6 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-colors">
-                Return to Login
+        <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a href="{{ route('login', ['switch' => 1, 'role' => 'admin']) }}" class="w-full sm:w-auto py-3 px-6 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-colors">
+                Sign in with Administrator Account
             </a>
+            @auth
+                @if(Auth::user()->isApproved())
+                    <a href="{{ route('resident.dashboard') }}" class="w-full sm:w-auto py-3 px-6 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors">
+                        Back to Resident Dashboard
+                    </a>
+                @endif
+            @endauth
         </div>
     </div>
 </x-layouts.guest>

@@ -34,6 +34,7 @@ class Complaint extends Model
         'resident_visible_remarks',
         'ai_analysis_status',
         'resolved_at',
+        'edit_history',
     ];
 
     protected function casts(): array
@@ -41,6 +42,7 @@ class Complaint extends Model
         return [
             'incident_date' => 'date',
             'resolved_at' => 'datetime',
+            'edit_history' => 'array',
         ];
     }
 

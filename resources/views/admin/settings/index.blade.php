@@ -33,95 +33,6 @@
             </div>
         @endif
 
-        <!-- Integration Status Section -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Supabase Status Card -->
-            <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center font-bold">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M11.996 0A12 12 0 0 0 0 11.996a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm1.706 17.072l-4.702 3.125c-.717.477-1.636-.12-1.488-.967l1.527-8.706-5.834.787a.89.89 0 0 1-.954-1.222l8.03-9.52c.628-.744 1.79-.317 1.77.653l-.15 7.42 5.068-.683c.773-.104 1.34.697.945 1.365l-4.212 7.745z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-sm text-slate-900 dark:text-white">Supabase Cloud Platform</h3>
-                            <p class="text-[11px] text-slate-500">PostgreSQL Database, Auth & Object Storage</p>
-                        </div>
-                    </div>
-                    @if($supabaseStatus['is_configured'])
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
-                            CONNECTED
-                        </span>
-                    @else
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300">
-                            FALLBACK MODE (LOCAL)
-                        </span>
-                    @endif
-                </div>
-
-                <div class="space-y-2 text-xs font-mono bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">API Endpoint:</span>
-                        <span class="text-slate-800 dark:text-slate-200 truncate max-w-xs">{{ $supabaseStatus['url'] ?: 'Configured via .env' }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">Anon Public Key:</span>
-                        <span class="{{ $supabaseStatus['has_anon_key'] ? 'text-emerald-600 font-bold' : 'text-slate-400' }}">
-                            {{ $supabaseStatus['has_anon_key'] ? 'Configured' : 'Missing' }}
-                        </span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">Service Role Key:</span>
-                        <span class="{{ $supabaseStatus['has_service_key'] ? 'text-emerald-600 font-bold' : 'text-slate-400' }}">
-                            {{ $supabaseStatus['has_service_key'] ? 'Configured' : 'Missing' }}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- AI Engine Status Card -->
-            <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 flex items-center justify-center font-bold">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-sm text-slate-900 dark:text-white">North Poblacion AI Engine</h3>
-                            <p class="text-[11px] text-slate-500">Complaint Triage & Assistant (Bisaya / Tagalog / English)</p>
-                        </div>
-                    </div>
-                    @if($aiStatus['is_configured'])
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 dark:bg-purple-950/80 dark:text-purple-300">
-                            ONLINE ({{ strtoupper($aiStatus['provider']) }})
-                        </span>
-                    @else
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300">
-                            RULE-BASED NLP (OFFLINE SAFE)
-                        </span>
-                    @endif
-                </div>
-
-                <div class="space-y-2 text-xs font-mono bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">Active Provider:</span>
-                        <span class="text-slate-800 dark:text-slate-200 capitalize">{{ $aiStatus['provider'] }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">Model Name:</span>
-                        <span class="text-slate-800 dark:text-slate-200">{{ $aiStatus['model'] }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">LGU Context:</span>
-                        <span class="text-slate-800 dark:text-slate-200">{{ $aiStatus['barangay'] }}, {{ $aiStatus['municipality'] }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Master Data Management: Puroks & Categories -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
@@ -228,11 +139,26 @@
             <!-- Profile Details -->
             <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
                 <h3 class="font-bold text-base text-slate-900 dark:text-white mb-1">Official Account Information</h3>
-                <p class="text-xs text-slate-500 mb-4">Update administrator display name and contact number</p>
+                <p class="text-xs text-slate-500 mb-4">Update administrator display name, photo, and contact number</p>
 
-                <form method="POST" action="{{ route('admin.settings.update-profile') }}" class="space-y-4">
+                <form method="POST" action="{{ route('admin.settings.update-profile') }}" enctype="multipart/form-data" class="space-y-4">
                     @csrf
                     @method('PUT')
+
+                    <!-- Profile Picture Upload & Preview -->
+                    <div class="flex items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+                        <div class="relative w-16 h-16 rounded-2xl overflow-hidden ring-4 ring-blue-500/20 shadow-sm bg-slate-100 dark:bg-slate-800 shrink-0">
+                            <img id="admin-avatar-preview" src="{{ $admin->avatarUrl() }}" alt="{{ $admin->name }}" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <label for="admin-avatar-input" class="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-700 dark:text-blue-300 font-bold text-xs transition-colors">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <span>Change Profile Picture</span>
+                            </label>
+                            <input type="file" id="admin-avatar-input" name="avatar" accept="image/*" class="hidden" onchange="previewAdminAvatar(this)">
+                            <p class="text-[10px] text-slate-400 mt-1">Supports JPG, PNG, WEBP, SVG up to 5MB</p>
+                        </div>
+                    </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Official Name</label>
@@ -299,4 +225,21 @@
         </div>
 
     </div>
+
+    @push('scripts')
+    <script>
+        function previewAdminAvatar(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('admin-avatar-preview');
+                    if (preview) {
+                        preview.src = e.target.result;
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+    @endpush
 </x-layouts.admin>

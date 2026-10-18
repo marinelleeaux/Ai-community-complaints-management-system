@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <path id="phTextTop" d="M 28 100 A 72 72 0 0 1 172 100" />
+    <path id="phTextBottom" d="M 172 100 A 72 72 0 0 1 28 100" />
+  </defs>
+
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="96" fill="#0038A8" stroke="#FCD116" stroke-width="4"/>
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#FCD116" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <circle cx="100" cy="100" r="74" fill="#FFFFFF" stroke="#CE1126" stroke-width="3"/>
+
+  <!-- Top Inscription -->
+  <text font-family="Arial, sans-serif" font-size="10.5" font-weight="900" fill="#FFFFFF" letter-spacing="1.5">
+    <textPath href="#phTextTop" startOffset="50%" text-anchor="middle">
+      REPUBLIC OF THE PHILIPPINES
+    </textPath>
+  </text>
+
+  <!-- Bottom Inscription -->
+  <text font-family="Arial, sans-serif" font-size="9" font-weight="800" fill="#FCD116" letter-spacing="1.5">
+    <textPath href="#phTextBottom" startOffset="50%" text-anchor="middle">
+      DEPARTMENT OF THE INTERIOR AND LOCAL GOVT
+    </textPath>
+  </text>
+
+  <!-- Split Shield -->
+  <path d="M 64 68 L 136 68 L 136 112 Q 136 148 100 156 Q 64 148 64 112 Z" fill="#FFFFFF" stroke="#0038A8" stroke-width="2"/>
+  <!-- Left Blue Field -->
+  <path d="M 64 68 L 100 68 L 100 156 Q 64 148 64 112 Z" fill="#0038A8"/>
+  <!-- Right Red Field -->
+  <path d="M 100 68 L 136 68 L 136 112 Q 136 148 100 156 Z" fill="#CE1126"/>
+
+  <!-- Center Sun (Gold) -->
+  <circle cx="100" cy="105" r="14" fill="#FCD116" stroke="#B45309" stroke-width="1"/>
+  <g stroke="#FCD116" stroke-width="2.5" stroke-linecap="round">
+    <line x1="100" y1="86" x2="100" y2="90"/>
+    <line x1="100" y1="120" x2="100" y2="124"/>
+    <line x1="81" y1="105" x2="85" y2="105"/>
+    <line x1="115" y1="105" x2="119" y2="105"/>
+    <line x1="87" y1="92" x2="90" y2="95"/>
+    <line x1="113" y1="118" x2="110" y2="115"/>
+    <line x1="113" y1="92" x2="110" y2="95"/>
+    <line x1="87" y1="118" x2="90" y2="115"/>
+  </g>
+
+  <!-- Three Stars -->
+  <polygon points="100,74 102,78 106,78 103,81 104,85 100,83 96,85 97,81 94,78 98,78" fill="#FCD116"/>
+  <polygon points="76,125 78,129 82,129 79,132 80,136 76,134 72,136 73,132 70,129 74,129" fill="#FCD116"/>
+  <polygon points="124,125 126,129 130,129 127,132 128,136 124,134 120,136 121,132 118,129 122,129" fill="#FCD116"/>
+</svg>

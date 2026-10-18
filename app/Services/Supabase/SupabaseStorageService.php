@@ -54,6 +54,15 @@ class SupabaseStorageService
             ];
         }
 
+        // Always ensure a local copy is saved for instant local display & resilience
+        try {
+            $diskPath = $file->storeAs("public/{$bucket}/{$folderPath}", $filename);
+            $localUrl = asset('storage/' . str_replace('public/', '', $diskPath));
+        } catch (\Throwable $e) {
+            Log::warning('Local storage copy failed: ' . $e->getMessage());
+            $localUrl = null;
+        }
+
         try {
             $fileContent = file_get_contents($file->getRealPath());
             $response = Http::withHeaders([
@@ -68,7 +77,8 @@ class SupabaseStorageService
                 return [
                     'success' => true,
                     'path' => "{$bucket}/{$path}",
-                    'url' => $publicUrl,
+                    'url' => $localUrl ?: $publicUrl,
+                    'supabase_url' => $publicUrl,
                     'filename' => $file->getClientOriginalName(),
                     'size' => $file->getSize(),
                     'mime' => $mimeType,
@@ -80,9 +90,14 @@ class SupabaseStorageService
             Log::error('Supabase storage upload exception: ' . $e->getMessage());
         }
 
-        // Local storage fallback on error
-        $diskPath = $file->storeAs("public/{$bucket}/{$folderPath}", $filename);
-        $publicUrl = asset('storage/' . str_replace('public/', '', $diskPath));
+        return [
+            'success' => true,
+            'path' => "{$bucket}/{$path}",
+            'url' => $localUrl ?: asset("storage/{$bucket}/{$path}"),
+            'filename' => $file->getClientOriginalName(),
+            'size' => $file->getSize(),
+            'mime' => $mimeType,
+        ];
 
         return [
             'success' => true,

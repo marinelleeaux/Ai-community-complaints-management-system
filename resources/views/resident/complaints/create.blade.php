@@ -105,6 +105,25 @@
                     </div>
                 </div>
 
+                <!-- Interactive "Others" Category Notice Box -->
+                <div id="others-category-notice" class="hidden p-5 rounded-3xl bg-gradient-to-r from-amber-50/90 to-orange-50/90 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200 dark:border-amber-900/60 shadow-xs animate-fade-in-up">
+                    <div class="flex items-start gap-3.5">
+                        <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-md shadow-amber-500/20">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                            </svg>
+                        </div>
+                        <div class="space-y-1">
+                            <h5 class="text-xs font-black text-amber-900 dark:text-amber-200 uppercase tracking-wide">
+                                Custom Complaint Topic (Others)
+                            </h5>
+                            <p class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                                You selected <strong>"Others"</strong>. Please write what you want to complain about in the <strong>Complaint Title / Subject</strong> and clearly describe the incident details below so our Barangay team can attend to your concern.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Specific Location Landmark -->
                 <div>
                     <label for="incident_location" class="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
@@ -195,29 +214,31 @@
                         <span>Photo Evidence / Supporting Documents (Optional)</span>
                     </label>
                     
-                    <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 rounded-3xl p-6 text-center transition-colors bg-slate-50/50 dark:bg-slate-900/40">
+                    <div id="dropzone-container" class="border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 rounded-3xl p-6 text-center transition-all bg-slate-50/50 dark:bg-slate-900/40">
                         <input id="attachments" 
                                type="file" 
                                name="attachments[]" 
                                multiple 
                                accept="image/*,.pdf,.doc,.docx"
                                class="hidden"
-                               onchange="updateFileNames(this)">
+                               onchange="previewComplaintFiles(this)">
                         
                         <label for="attachments" class="cursor-pointer flex flex-col items-center">
-                            <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-2">
-                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-2 shadow-xs group-hover:scale-110 transition-transform">
+                                <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                             </div>
                             <span class="text-xs font-bold text-slate-700 dark:text-slate-200">
-                                Click to upload photos or documents
+                                Click or drag & drop to upload incident photos or documents
                             </span>
                             <span class="text-[11px] text-slate-400 mt-1">
-                                JPG, PNG, PDF up to 5MB each
+                                Supports JPG, PNG, WEBP, GIF, SVG, BMP, PDF up to 10MB each • Instant visual preview
                             </span>
                         </label>
-                        <div id="file-list-preview" class="flex flex-wrap gap-2 justify-center mt-3"></div>
+                        
+                        <!-- Visual Image & Document Preview Grid -->
+                        <div id="file-list-preview" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 hidden"></div>
                     </div>
 
                     @error('attachments.*')
@@ -243,16 +264,72 @@
 
     @push('scripts')
     <script>
-        function updateFileNames(input) {
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.getElementById('category_id');
+            const othersNotice = document.getElementById('others-category-notice');
+
+            function checkCategory() {
+                if (!categorySelect || !othersNotice) return;
+                const selectedText = categorySelect.options[categorySelect.selectedIndex]?.text?.trim()?.toLowerCase() || '';
+                if (selectedText.includes('other')) {
+                    othersNotice.classList.remove('hidden');
+                } else {
+                    othersNotice.classList.add('hidden');
+                }
+            }
+
+            if (categorySelect) {
+                categorySelect.addEventListener('change', checkCategory);
+                checkCategory();
+            }
+        });
+
+        function previewComplaintFiles(input) {
             const preview = document.getElementById('file-list-preview');
             preview.innerHTML = '';
+            
             if (input.files && input.files.length > 0) {
-                Array.from(input.files).forEach(file => {
-                    const tag = document.createElement('span');
-                    tag.className = 'px-3 py-1 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-[11px] font-bold flex items-center gap-1.5';
-                    tag.innerHTML = `📎 ${file.name} <span class="text-[10px] text-slate-400">(${(file.size/1024).toFixed(0)}KB)</span>`;
-                    preview.appendChild(tag);
+                preview.classList.remove('hidden');
+
+                Array.from(input.files).forEach((file, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 shadow-xs flex flex-col items-center text-center';
+
+                    if (file.type.startsWith('image/')) {
+                        const img = document.createElement('img');
+                        img.className = 'w-full h-24 object-cover rounded-xl mb-1.5';
+                        img.alt = file.name;
+                        
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            img.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                        card.appendChild(img);
+                    } else {
+                        const iconBox = document.createElement('div');
+                        iconBox.className = 'w-full h-24 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex flex-col items-center justify-center font-bold text-xs mb-1.5';
+                        iconBox.innerHTML = `
+                            <svg class="w-8 h-8 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>${file.name.split('.').pop().toUpperCase()}</span>
+                        `;
+                        card.appendChild(iconBox);
+                    }
+
+                    const name = document.createElement('p');
+                    name.className = 'text-[10px] font-bold text-slate-700 dark:text-slate-200 truncate w-full';
+                    name.textContent = file.name;
+                    card.appendChild(name);
+
+                    const size = document.createElement('span');
+                    size.className = 'text-[9px] text-slate-400';
+                    size.textContent = `${(file.size / 1024).toFixed(0)} KB`;
+                    card.appendChild(size);
+
+                    preview.appendChild(card);
                 });
+            } else {
+                preview.classList.add('hidden');
             }
         }
     </script>

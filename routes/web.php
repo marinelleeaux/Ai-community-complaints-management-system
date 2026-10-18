@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementContro
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Admin\ResidentController as AdminResidentController;
 use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
@@ -40,8 +41,31 @@ Route::get('/', function () {
         }
         return redirect()->route('pending-approval');
     }
-    return redirect()->route('login');
+    return view('welcome');
 })->name('home');
+
+// Public Pages
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/how-it-works', function () {
+    return view('how-it-works');
+})->name('how-it-works');
+
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+
+Route::post('/contact', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'name' => 'required|string|max:100',
+        'email' => 'required|email|max:100',
+        'subject' => 'required|string|max:150',
+        'message' => 'required|string|max:2000',
+    ]);
+    return back()->with('success', 'Thank you for reaching out! Your message has been sent to Barangay North Poblacion. We will get back to you shortly.');
+})->name('contact.send');
 
 // ==============================================================================
 // 1. PUBLIC & AUTHENTICATION ROUTES
@@ -62,6 +86,12 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
+// Redirect quick-login directly to the login page
+Route::get('/quick-login/{role}', function (string $role) {
+    return redirect()->route('login', ['role' => $role]);
+})->name('quick-login');
+
+
 // Account Status Notices
 Route::get('/pending-approval', [StatusController::class, 'pendingApproval'])->name('pending-approval');
 Route::get('/registration-rejected', [StatusController::class, 'registrationRejected'])->name('registration-rejected');
@@ -78,6 +108,9 @@ Route::prefix('resident')->name('resident.')->middleware(['auth', 'resident.appr
     Route::get('/complaints/create', [ResidentComplaintController::class, 'create'])->name('complaints.create');
     Route::post('/complaints', [ResidentComplaintController::class, 'store'])->name('complaints.store');
     Route::get('/complaints/{id}', [ResidentComplaintController::class, 'show'])->name('complaints.show');
+    Route::get('/complaints/{id}/edit', [ResidentComplaintController::class, 'edit'])->name('complaints.edit');
+    Route::put('/complaints/{id}', [ResidentComplaintController::class, 'update'])->name('complaints.update');
+    Route::delete('/complaints/{id}', [ResidentComplaintController::class, 'destroy'])->name('complaints.destroy');
     Route::get('/complaint-history', [ResidentComplaintController::class, 'history'])->name('complaint-history');
 
     // Announcements
@@ -92,7 +125,11 @@ Route::prefix('resident')->name('resident.')->middleware(['auth', 'resident.appr
     // Notifications
     Route::get('/notifications', [ResidentNotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [ResidentNotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/{id}/unread', [ResidentNotificationController::class, 'markAsUnread'])->name('notifications.unread');
     Route::post('/notifications/read-all', [ResidentNotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::post('/notifications/unread-all', [ResidentNotificationController::class, 'markAllAsUnread'])->name('notifications.unread-all');
+    Route::delete('/notifications/{id}', [ResidentNotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::post('/notifications/delete-all', [ResidentNotificationController::class, 'destroyAll'])->name('notifications.delete-all');
     Route::get('/notifications/poll', [ResidentNotificationController::class, 'poll'])->name('notifications.poll');
 
     // Profile & Settings
@@ -107,6 +144,7 @@ Route::prefix('resident')->name('resident.')->middleware(['auth', 'resident.appr
 // 3. ADMIN PORTAL ROUTES
 // ==============================================================================
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/', fn () => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // Complaints Management
@@ -124,6 +162,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/residents/{id}/approve', [AdminResidentController::class, 'approve'])->name('residents.approve');
     Route::post('/residents/{id}/reject', [AdminResidentController::class, 'reject'])->name('residents.reject');
     Route::post('/residents/{id}/toggle-active', [AdminResidentController::class, 'toggleActive'])->name('residents.toggle-active');
+    Route::delete('/residents/{id}', [AdminResidentController::class, 'destroy'])->name('residents.destroy');
 
     // Announcements Management
     Route::get('/announcements', [AdminAnnouncementController::class, 'index'])->name('announcements.index');
@@ -140,6 +179,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // Audit Logs
     Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+
+    // Notifications
+    Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [AdminNotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/{id}/unread', [AdminNotificationController::class, 'markAsUnread'])->name('notifications.unread');
+    Route::post('/notifications/read-all', [AdminNotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::post('/notifications/unread-all', [AdminNotificationController::class, 'markAllAsUnread'])->name('notifications.unread-all');
+    Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::post('/notifications/delete-all', [AdminNotificationController::class, 'destroyAll'])->name('notifications.delete-all');
+    Route::get('/notifications/poll', [AdminNotificationController::class, 'poll'])->name('notifications.poll');
 
     // System Settings & Master Data
     Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings.index');

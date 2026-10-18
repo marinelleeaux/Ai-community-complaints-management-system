@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="bgJan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <rect width="160" height="160" rx="44" fill="url(#bgJan)"/>
+  <!-- Blouse / Dress -->
+  <path d="M30 160 C30 118 52 108 80 108 C108 108 130 118 130 160 Z" fill="#F8FAFC"/>
+  <path d="M64 108 C64 125 96 125 96 108 Z" fill="#F3D5B5"/>
+  <path d="M60 114 L80 135 L100 114" stroke="#2563EB" stroke-width="2.5" fill="none"/>
+  <!-- Long Hair Behind -->
+  <path d="M48 68 C44 95 44 130 52 145 C56 120 54 90 56 68 Z" fill="#2E1B10"/>
+  <path d="M112 68 C116 95 116 130 108 145 C104 120 106 90 104 68 Z" fill="#2E1B10"/>
+  <!-- Head -->
+  <ellipse cx="80" cy="72" rx="27" ry="31" fill="#F8DFCB"/>
+  <!-- Front Hair Style -->
+  <path d="M52 64 C52 38 64 34 80 34 C96 34 108 38 108 64 C100 52 86 50 80 50 C70 50 58 54 52 64 Z" fill="#2E1B10"/>
+  <path d="M52 64 C56 78 58 92 56 102 C53 88 51 76 52 64 Z" fill="#2E1B10"/>
+  <path d="M108 64 C104 78 102 92 104 102 C107 88 109 76 108 64 Z" fill="#2E1B10"/>
+  <!-- Eyes & Warm Expression -->
+  <ellipse cx="71" cy="71" rx="3.5" ry="4" fill="#2E1B10"/>
+  <circle cx="72" cy="70" r="1.2" fill="#FFFFFF"/>
+  <ellipse cx="89" cy="71" rx="3.5" ry="4" fill="#2E1B10"/>
+  <circle cx="90" cy="70" r="1.2" fill="#FFFFFF"/>
+  <!-- Eyebrows -->
+  <path d="M66 64 Q71 61 76 64" stroke="#2E1B10" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M84 64 Q89 61 94 64" stroke="#2E1B10" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Blushing Cheeks -->
+  <ellipse cx="65" cy="79" rx="5" ry="3" fill="#F472B6" opacity="0.35"/>
+  <ellipse cx="95" cy="79" rx="5" ry="3" fill="#F472B6" opacity="0.35"/>
+  <!-- Pleasant Smile -->
+  <path d="M73 85 Q80 91 87 85" stroke="#C05621" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>

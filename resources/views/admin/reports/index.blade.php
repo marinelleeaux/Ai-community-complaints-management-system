@@ -1,8 +1,53 @@
 <x-layouts.admin title="Reports & Community Analytics">
+    <!-- Print Stylesheet -->
+    <style>
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: 'Times New Roman', Times, serif !important;
+            }
+            header, nav, aside, footer, #ai-floating-widget, #toast-container, .print\:hidden {
+                display: none !important;
+            }
+            .print\:block {
+                display: block !important;
+            }
+            .printable-report {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 10px !important;
+            }
+            @page {
+                size: A4 landscape;
+                margin: 10mm 15mm;
+            }
+        }
+    </style>
+
     <div class="space-y-6">
 
+        <!-- Official Printable Letterhead (Only visible during print) -->
+        <div class="hidden print:block printable-report font-serif text-black mb-4">
+            <div class="border-b-4 border-double border-slate-900 pb-3 mb-4 text-center">
+                <!-- Single Official Seal Icon -->
+                <div class="w-16 h-16 mx-auto mb-2 flex items-center justify-center">
+                    <img src="{{ asset('images/barangay-logo.svg') }}" alt="Barangay North Poblacion Seal" class="w-16 h-16 object-contain">
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase tracking-widest text-slate-800">Republic of the Philippines • Province of Bukidnon</p>
+                    <h1 class="text-lg font-black uppercase text-slate-950 tracking-wider">BARANGAY NORTH POBLACION • MARAMAG</h1>
+                    <p class="text-xs font-bold text-slate-900 italic">OFFICIAL CITIZEN COMPLAINTS & INCIDENT ANALYTICS EXECUTIVE SUMMARY</p>
+                    <p class="text-[9px] text-slate-600 mt-0.5">
+                        Reporting Period: {{ request('start_date', 'All time') }} to {{ request('end_date', now()->format('Y-m-d')) }} • Generated: {{ now()->format('F d, Y • h:i A') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Header & Export Action -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 print:hidden">
             <div>
                 <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-1">
                     <a href="{{ route('admin.dashboard') }}" class="hover:text-blue-600 transition-colors">Admin Portal</a>
@@ -13,13 +58,23 @@
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Official monitoring metrics, Purok complaint summaries, and downloadable CSV records for local governance.</p>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2.5">
+                <!-- Print Report Button -->
+                <button type="button" 
+                        onclick="window.print()" 
+                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition-all hover:scale-105 active:scale-95">
+                    <svg class="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <span>Print Executive Report</span>
+                </button>
+
                 <a href="{{ route('admin.reports.export', request()->query()) }}"
                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md shadow-emerald-600/20 transition-all">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
-                    <span>Export Filtered CSV</span>
+                    <span>Export CSV</span>
                 </a>
             </div>
         </div>
@@ -51,8 +106,8 @@
             </div>
         </div>
 
-        <!-- Filter Controls Form -->
-        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+        <!-- Filter Controls Form (Hidden on Print) -->
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs print:hidden">
             <h2 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                 <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>

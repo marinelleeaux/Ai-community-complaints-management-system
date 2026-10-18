@@ -99,7 +99,7 @@ window.showToast = function (message, type = 'info') {
     setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => toast.remove(), 300);
-    }, 4000);
+    }, 5000);
 };
 
 // ==============================================================================
@@ -128,3 +128,40 @@ function pollNotifications() {
 if (document.querySelector('meta[name="user-authenticated"]')) {
     setInterval(pollNotifications, 30000);
 }
+
+// ==============================================================================
+// INSTANT HOVER PREFETCHER FOR ULTRA-FAST BUTTON CLICKS & PAGE TRANSITIONS
+// ==============================================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const prefetched = new Set();
+    function prefetchUrl(url) {
+        if (!url || prefetched.has(url)) return;
+        try {
+            const parsed = new URL(url, window.location.origin);
+            if (parsed.origin !== window.location.origin) return;
+            if (parsed.pathname === window.location.pathname) return;
+            // Never prefetch state-altering actions
+            if (url.includes('logout') || url.includes('delete') || url.includes('destroy') || url.includes('approve') || url.includes('reject')) return;
+            prefetched.add(url);
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = url;
+            link.as = 'document';
+            document.head.appendChild(link);
+        } catch (e) {}
+    }
+
+    document.addEventListener('mouseover', (e) => {
+        const a = e.target.closest('a');
+        if (a && a.href && a.target !== '_blank' && !a.hasAttribute('download')) {
+            prefetchUrl(a.href);
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchstart', (e) => {
+        const a = e.target.closest('a');
+        if (a && a.href && a.target !== '_blank' && !a.hasAttribute('download')) {
+            prefetchUrl(a.href);
+        }
+    }, { passive: true });
+});

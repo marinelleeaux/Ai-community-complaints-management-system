@@ -21,7 +21,7 @@ class EnsureAdmin
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Unauthorized access.'], 403);
             }
-            return redirect()->route('access-denied')->with('error', 'Administrator privileges required.');
+            return redirect()->route('resident.dashboard')->with('error', 'Access restricted: Resident accounts cannot access the Administrator Portal.');
         }
 
         if (! $user->isActive()) {

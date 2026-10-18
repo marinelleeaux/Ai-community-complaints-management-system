@@ -34,6 +34,31 @@ class ComplaintAttachment extends Model
         if (str_starts_with($this->storage_path, 'http')) {
             return $this->storage_path;
         }
-        return asset('storage/' . $this->storage_path);
+
+        $supabaseUrl = config('supabase.url');
+        if (str_starts_with($this->storage_path, 'complaint-attachments/') || str_starts_with($this->storage_path, 'avatars/') || str_starts_with($this->storage_path, 'announcements/')) {
+            if ($supabaseUrl && ! str_contains($supabaseUrl, 'your-project')) {
+                return rtrim($supabaseUrl, '/') . '/storage/v1/object/public/' . ltrim($this->storage_path, '/');
+            }
+        }
+
+        if (file_exists(public_path('storage/' . $this->storage_path)) || file_exists(storage_path('app/public/' . $this->storage_path))) {
+            return asset('storage/' . $this->storage_path);
+        }
+
+        if ($supabaseUrl && ! str_contains($supabaseUrl, 'your-project')) {
+            return rtrim($supabaseUrl, '/') . '/storage/v1/object/public/' . ltrim($this->storage_path, '/');
+        }
+
+        return asset('images/announcement-placeholder.svg');
+    }
+
+    public function isImage(): bool
+    {
+        if ($this->content_type && str_starts_with($this->content_type, 'image/')) {
+            return true;
+        }
+        $ext = strtolower(pathinfo($this->original_filename, PATHINFO_EXTENSION));
+        return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'heic', 'heif', 'avif']);
     }
 }

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400">
+  <defs>
+    <linearGradient id="bgAss" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B2340"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="400" fill="url(#bgAss)"/>
+  <circle cx="700" cy="100" r="160" fill="#3B82F6" opacity="0.15"/>
+  <circle cx="100" cy="320" r="200" fill="#60A5FA" opacity="0.1"/>
+  <!-- Barangay Hall Pillars Vector -->
+  <g fill="#FFFFFF" opacity="0.9" transform="translate(280, 80)">
+    <polygon points="120,20 20,80 220,80" fill="#93C5FD"/>
+    <rect x="35" y="80" width="16" height="120"/>
+    <rect x="85" y="80" width="16" height="120"/>
+    <rect x="135" y="80" width="16" height="120"/>
+    <rect x="185" y="80" width="16" height="120"/>
+    <rect x="20" y="200" width="200" height="20" rx="4"/>
+  </g>
+  <text x="400" y="340" font-family="'Plus Jakarta Sans', sans-serif" font-size="28" font-weight="bold" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">BARANGAY GENERAL ASSEMBLY</text>
+  <text x="400" y="375" font-family="'Plus Jakarta Sans', sans-serif" font-size="16" font-weight="600" fill="#93C5FD" text-anchor="middle">Barangay North Poblacion • Maramag, Bukidnon</text>
+</svg>

@@ -16,7 +16,9 @@ class ResidentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::where('role', 'resident')->with('purok');
+        $query = User::where('role', 'resident')
+            ->where('account_status', '!=', 'pending')
+            ->with('purok');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -28,7 +30,7 @@ class ResidentController extends Controller
             });
         }
 
-        if ($request->filled('status')) {
+        if ($request->filled('status') && $request->status !== 'pending') {
             $query->where('account_status', $request->status);
         }
 
@@ -177,5 +179,33 @@ class ResidentController extends Controller
         ]);
 
         return back()->with('success', "Resident status changed to {$newStatus}.");
+    }
+
+    public function destroy(string $id)
+    {
+        $admin = Auth::user();
+        $resident = User::where('role', 'resident')->findOrFail($id);
+
+        if ($admin->id === $resident->id) {
+            return back()->with('error', 'You cannot delete your own account.');
+        }
+
+        DB::transaction(function () use ($admin, $resident) {
+            $name = $resident->name;
+            $email = $resident->email;
+
+            Notification::where('recipient_id', $resident->id)->delete();
+            ResidentVerificationRequest::where('resident_id', $resident->id)->delete();
+
+            $resident->delete();
+
+            AuditLog::log($admin->id, 'deleted_resident_account', 'users', $resident->id, [
+                'resident_name' => $name,
+                'resident_email' => $email,
+            ]);
+        });
+
+        return redirect()->route('admin.residents.index')
+            ->with('success', "Resident account for {$resident->name} has been permanently deleted.");
     }
 }

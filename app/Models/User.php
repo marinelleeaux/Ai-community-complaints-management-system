@@ -124,9 +124,20 @@ class User extends Authenticatable
             if (str_starts_with($this->avatar_path, 'http')) {
                 return $this->avatar_path;
             }
-            return asset('storage/' . $this->avatar_path);
+            if (file_exists(public_path('storage/' . $this->avatar_path)) || file_exists(storage_path('app/public/' . $this->avatar_path))) {
+                return asset('storage/' . $this->avatar_path);
+            }
+            $supabaseUrl = config('supabase.url');
+            if ($supabaseUrl && ! str_contains($supabaseUrl, 'your-project')) {
+                return rtrim($supabaseUrl, '/') . '/storage/v1/object/public/' . ltrim($this->avatar_path, '/');
+            }
         }
-        return null;
+
+        if ($this->isAdmin() || $this->isOfficial()) {
+            return asset('images/default-avatar-admin.svg');
+        }
+
+        return asset('images/default-avatar-resident.svg');
     }
 
     // Relationships

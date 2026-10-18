@@ -17,9 +17,12 @@ class EnsureApprovedResident
 
         $user = Auth::user();
 
-        // Admins can also inspect resident views if necessary or be redirected
+        // Admins cannot access the residents portal (Strict Portal Segregation)
         if ($user->isAdmin()) {
-            return $next($request);
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Access denied: Administrators cannot access the Residents Portal.'], 403);
+            }
+            return redirect()->route('admin.dashboard')->with('error', 'Access restricted: Administrators cannot access the Residents Portal. Please use the Admin Command Center.');
         }
 
         if (! $user->isActive()) {

@@ -12,13 +12,15 @@ use App\Services\Supabase\SupabaseAuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Services\Supabase\SupabaseStorageService;
 use Illuminate\Validation\Rules\Password;
 
 class SettingsController extends Controller
 {
     public function __construct(
         protected ComplaintAnalysisService $aiService,
-        protected SupabaseAuthService $authService
+        protected SupabaseAuthService $authService,
+        protected SupabaseStorageService $storageService
     ) {
     }
 
@@ -146,12 +148,24 @@ class SettingsController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp,svg', 'max:5120'],
         ]);
 
-        $admin->update($validated);
+        $avatarPath = $admin->avatar_path;
+        if ($request->hasFile('avatar')) {
+            $upload = $this->storageService->upload('avatars', $request->file('avatar'), 'admins');
+            $avatarPath = $upload['path'] ?? $avatarPath;
+        }
+
+        $admin->update([
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+            'avatar_path' => $avatarPath,
+        ]);
+
         AuditLog::log($admin->id, 'updated_admin_profile', 'users', $admin->id);
 
-        return back()->with('success', 'Admin profile updated.');
+        return back()->with('success', 'Admin profile and photo updated successfully.');
     }
 
     public function updatePassword(Request $request)

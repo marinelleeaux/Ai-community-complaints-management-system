@@ -26,26 +26,100 @@
         $currentWeight = $statusWeights[$complaint->status] ?? 1;
     @endphp
 
-    <div class="max-w-4xl mx-auto space-y-6 animate-fade-in-up">
-        <!-- Top Navigation & Tracking Reference -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- Print Stylesheet -->
+    <style>
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: 'Times New Roman', Times, serif !important;
+            }
+            header, nav, aside, footer, #ai-floating-widget, #toast-container, .print-hidden, .print\:hidden {
+                display: none !important;
+            }
+            .print-only, .print\:block {
+                display: block !important;
+            }
+            .printable-record {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 10px !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 12mm 15mm 15mm 15mm;
+            }
+        }
+    </style>
+
+    <!-- ========================================================================= -->
+    <!-- SCREEN INTERFACE (Hidden When Printing) -->
+    <!-- ========================================================================= -->
+    <div class="max-w-4xl mx-auto space-y-6 animate-fade-in-up print:hidden">
+        <!-- Top Navigation & Tracking Reference with Print Action Button -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-[#1E293B] p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
             <div>
                 <a href="{{ route('resident.complaints.index') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors mb-2">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     <span>Back to My Complaints</span>
                 </a>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3">
                     <h2 class="text-2xl md:text-3xl font-black text-[#12345B] dark:text-white">
                         {{ $complaint->reference_number }}
                     </h2>
                     <span class="px-3.5 py-1.5 rounded-xl text-xs font-bold border {{ $badge['bg'] }} {{ $badge['text'] }} {{ $badge['border'] }} shadow-xs">
                         {{ $badge['label'] }}
                     </span>
+                    <span class="px-3 py-1 rounded-xl text-xs font-bold border {{ $pBadge['bg'] }} {{ $pBadge['text'] }} {{ $pBadge['border'] }} shadow-2xs">
+                        Priority: {{ $pBadge['label'] }}
+                    </span>
+                </div>
+                <div class="text-xs text-slate-400 mt-1">
+                    Submitted on {{ $complaint->created_at->format('M d, Y • h:i A') }}
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-400 font-medium">Submitted on {{ $complaint->created_at->format('M d, Y h:i A') }}</span>
+            <!-- Action Buttons: Edit, Delete, Print -->
+            <div class="flex items-center gap-2 flex-wrap">
+                @if(in_array($complaint->status, ['submitted', 'under_review']))
+                    <!-- Edit Button -->
+                    <a href="{{ route('resident.complaints.edit', $complaint->id) }}" 
+                       onclick="return confirmAction(event, 'Edit this complaints?', 'Edit Complaint', 'Yes, Edit', false);"
+                       class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 font-extrabold text-xs transition-all shadow-2xs">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        <span>Edit</span>
+                    </a>
+
+                    <!-- Delete Button -->
+                    <form method="POST" action="{{ route('resident.complaints.destroy', $complaint->id) }}" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" 
+                                onclick="return confirmAction(event, 'Are you sure you want to delete?', 'Delete Complaint', 'Yes, Delete', true);"
+                                class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900 font-extrabold text-xs transition-all shadow-2xs cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            <span>Delete</span>
+                        </button>
+                    </form>
+                @endif
+
+                <button type="button" 
+                        onclick="window.print()" 
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#12345B] via-blue-700 to-indigo-700 hover:from-[#0B2340] hover:to-blue-900 text-white font-extrabold text-xs shadow-md shadow-blue-900/20 hover:scale-[1.02] active:scale-95 transition-all">
+                    <svg class="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <span>Print Official Resident Copy</span>
+                </button>
             </div>
         </div>
 
@@ -63,25 +137,37 @@
                     @foreach($steps as $idx => $step)
                         @php
                             $stepWeight = $idx + 1;
-                            $isDone = $currentWeight >= $stepWeight;
+                            $isDone = $currentWeight > $stepWeight;
                             $isCurrent = $currentWeight == $stepWeight;
+                            $isPending = ($complaint->status === 'submitted' && $step['key'] === 'submitted');
                         @endphp
                         <div class="flex flex-col items-center text-center space-y-2 relative z-10">
-                            <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xs transition-all shadow-xs
-                                {{ $isDone ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-400' }}
-                                {{ $isCurrent ? 'ring-4 ring-emerald-500/20 animate-pulse' : '' }}">
+                            <div class="w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-xs transition-all shadow-xs
+                                {{ $isDone ? 'bg-emerald-600 text-white shadow-emerald-500/20' : ($isPending ? 'bg-amber-500 text-white ring-4 ring-amber-500/20 animate-pulse' : ($isCurrent ? 'bg-blue-600 text-white ring-4 ring-blue-500/20 animate-pulse' : 'bg-slate-100 dark:bg-slate-800 text-slate-400')) }}">
                                 @if($isDone)
                                     ✓
+                                @elseif($isPending)
+                                    <span class="text-[9px] font-black tracking-tight uppercase">Pending</span>
+                                @elseif($isCurrent)
+                                    <span class="text-[9px] font-black tracking-tight uppercase">Active</span>
                                 @else
                                     {{ $idx + 1 }}
                                 @endif
                             </div>
                             <div>
-                                <span class="text-xs font-extrabold block {{ $isDone ? 'text-slate-900 dark:text-white' : 'text-slate-400' }}">
-                                    {{ $step['label'] }}
+                                <span class="text-xs font-extrabold block {{ ($isDone || $isCurrent) ? 'text-slate-900 dark:text-white' : 'text-slate-400' }}">
+                                    @if($isPending)
+                                        Pending Review
+                                    @else
+                                        {{ $step['label'] }}
+                                    @endif
                                 </span>
                                 <span class="text-[10px] text-slate-400 block mt-0.5">
-                                    {{ $step['desc'] }}
+                                    @if($isPending)
+                                        Awaiting barangay action
+                                    @else
+                                        {{ $step['desc'] }}
+                                    @endif
                                 </span>
                             </div>
                         </div>
@@ -196,27 +282,405 @@
                 </div>
             </div>
 
-            <!-- Attached Evidence Photos / Files -->
+            <!-- Complaint Revision History (Before & After) -->
+            @if(!empty($complaint->edit_history) && count($complaint->edit_history) > 0)
+                <div class="p-5 sm:p-6 rounded-3xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="p-1.5 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </span>
+                            <div>
+                                <h4 class="text-xs font-black uppercase tracking-wider text-[#12345B] dark:text-white flex items-center gap-2">
+                                    <span>Complaint Edit History (Before & After)</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                                        {{ count($complaint->edit_history) }} {{ count($complaint->edit_history) === 1 ? 'Revision' : 'Revisions' }}
+                                    </span>
+                                </h4>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                    Tracked modifications made to this incident report.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    @foreach(array_reverse($complaint->edit_history) as $idx => $rev)
+                        <div class="p-4 rounded-2xl bg-white dark:bg-[#111C33] border border-slate-200/80 dark:border-slate-800/80 space-y-3">
+                            <div class="flex items-center justify-between text-xs pb-2 border-b border-slate-100 dark:border-slate-800">
+                                <span class="font-bold text-slate-700 dark:text-slate-300">
+                                    Revision on {{ $rev['edited_at_formatted'] ?? 'Recent' }}
+                                </span>
+                                <span class="text-[11px] text-slate-400">
+                                    Edited by: <strong class="text-slate-700 dark:text-slate-200">{{ $rev['editor_name'] ?? 'Complainant' }}</strong>
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- BEFORE COLUMN -->
+                                <div class="p-3.5 rounded-2xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/60 dark:border-rose-900/40 space-y-2.5">
+                                    <div class="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-rose-700 dark:text-rose-300 pb-1.5 border-b border-rose-200/50 dark:border-rose-900/30">
+                                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                        <span>Before (Previous)</span>
+                                    </div>
+                                    <div class="space-y-2 text-xs">
+                                        <div>
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Title</span>
+                                            <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $rev['before']['title'] ?? 'N/A' }}</p>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Category</span>
+                                                <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $rev['before']['category_name'] ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Purok</span>
+                                                <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $rev['before']['purok_name'] ?? 'N/A' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Date</span>
+                                                <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $rev['before']['incident_date'] ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Location</span>
+                                                <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $rev['before']['incident_location'] ?? 'N/A' }}</p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Citizen Statement</span>
+                                            <p class="font-normal text-slate-700 dark:text-slate-300 whitespace-pre-line bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-rose-200/50 dark:border-rose-900/30 text-[11px] leading-relaxed">{{ $rev['before']['original_description'] ?? 'N/A' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- AFTER COLUMN -->
+                                <div class="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 space-y-2.5">
+                                    <div class="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300 pb-1.5 border-b border-emerald-200/50 dark:border-emerald-900/30">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                        <span>After (Edited Version)</span>
+                                    </div>
+                                    <div class="space-y-2 text-xs">
+                                        <div>
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Title</span>
+                                            <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $rev['after']['title'] ?? 'N/A' }}</p>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Category</span>
+                                                <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $rev['after']['category_name'] ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Purok</span>
+                                                <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $rev['after']['purok_name'] ?? 'N/A' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Date</span>
+                                                <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $rev['after']['incident_date'] ?? 'N/A' }}</p>
+                                            </div>
+                                            <div>
+                                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Location</span>
+                                                <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $rev['after']['incident_location'] ?? 'N/A' }}</p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Citizen Statement</span>
+                                            <p class="font-normal text-slate-700 dark:text-slate-300 whitespace-pre-line bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-emerald-200/50 dark:border-emerald-900/30 text-[11px] leading-relaxed">{{ $rev['after']['original_description'] ?? 'N/A' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            <!-- ============================================================= -->
+            <!-- PHOTO EVIDENCE & ATTACHMENTS GALLERY -->
+            <!-- ============================================================= -->
             @if($complaint->attachments->isNotEmpty())
                 <div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Submitted Evidence & Attachments</h4>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                            <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Uploaded Photos & Supporting Evidence ({{ $complaint->attachments->count() }})</span>
+                        </h4>
+                        <span class="text-[11px] text-slate-400">Click photo to view full resolution</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         @foreach($complaint->attachments as $attachment)
-                            <a href="{{ $attachment->url() }}" target="_blank" class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center gap-3 hover:border-blue-500 transition-colors group">
-                                <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 flex items-center justify-center shrink-0">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                </div>
-                                <div class="min-w-0">
-                                    <div class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate group-hover:text-blue-600">
-                                        {{ $attachment->original_filename }}
+                            @if($attachment->isImage())
+                                <!-- Photo Card with Image Preview -->
+                                <div class="group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 transition-all hover:shadow-lg">
+                                    <div class="aspect-video w-full overflow-hidden bg-slate-950 flex items-center justify-center relative cursor-pointer"
+                                         onclick="openImageLightbox('{{ $attachment->url() }}', '{{ addslashes($attachment->original_filename) }}')">
+                                        <img src="{{ $attachment->url() }}" 
+                                             alt="{{ $attachment->original_filename }}" 
+                                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                             loading="lazy"
+                                             onerror="this.onerror=null; this.src='{{ asset('images/announcement-placeholder.svg') }}'">
+                                        
+                                        <!-- Hover overlay indicator -->
+                                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white">
+                                            <svg class="w-6 h-6 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                            </svg>
+                                            <span class="text-xs font-bold drop-shadow-md">View Full Size</span>
+                                        </div>
                                     </div>
-                                    <div class="text-[10px] text-slate-400">Click to view/download</div>
+
+                                    <div class="p-3 flex items-center justify-between text-xs border-t border-slate-100 dark:border-slate-800">
+                                        <div class="min-w-0 pr-2">
+                                            <p class="font-bold text-slate-700 dark:text-slate-200 truncate">{{ $attachment->original_filename }}</p>
+                                            <p class="text-[10px] text-slate-400">Photo Evidence • {{ number_format(($attachment->file_size ?: 12450) / 1024, 0) }} KB</p>
+                                        </div>
+                                        <a href="{{ $attachment->url() }}" download="{{ $attachment->original_filename }}" target="_blank" 
+                                           class="p-2 rounded-xl bg-slate-100 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-blue-900/40 text-slate-600 hover:text-blue-600 dark:text-slate-300 transition-colors shrink-0" 
+                                           title="Download Photo">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                            </svg>
+                                        </a>
+                                    </div>
                                 </div>
-                            </a>
+                            @else
+                                <!-- Non-image document attachment -->
+                                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-between hover:border-blue-500 transition-colors">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 font-bold text-xs">
+                                            DOC
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{{ $attachment->original_filename }}</p>
+                                            <p class="text-[10px] text-slate-400">{{ number_format(($attachment->file_size ?: 1024) / 1024, 0) }} KB</p>
+                                        </div>
+                                    </div>
+                                    <a href="{{ $attachment->url() }}" target="_blank" download class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shrink-0 transition-colors">
+                                        Download
+                                    </a>
+                                </div>
+                            @endif
                         @endforeach
                     </div>
                 </div>
             @endif
         </div>
     </div>
+
+    <!-- ========================================================================= -->
+    <!-- DEDICATED PRINTABLE OFFICIAL BARANGAY RECORD (Print View Only) -->
+    <!-- ========================================================================= -->
+    <div class="hidden print:block printable-record bg-white text-black p-4 font-serif">
+        <!-- Official Letterhead Header with Single Official Logo -->
+        <div class="border-b-4 border-double border-slate-900 pb-3 mb-4 text-center">
+            <!-- Single Official Seal Icon -->
+            <div class="w-20 h-20 mx-auto mb-2 flex items-center justify-center">
+                <img src="{{ asset('images/barangay-logo.svg') }}" alt="Barangay North Poblacion Seal" class="w-20 h-20 object-contain">
+            </div>
+
+            <!-- Republic & Barangay Heading -->
+            <div>
+                <p class="text-[11px] uppercase tracking-widest text-slate-800 font-serif">Republic of the Philippines</p>
+                <p class="text-[11px] uppercase tracking-widest text-slate-800 font-serif">Province of Bukidnon • Municipality of Maramag</p>
+                <h1 class="text-xl font-black uppercase text-slate-950 tracking-wider font-serif mt-0.5">
+                    BARANGAY NORTH POBLACION
+                </h1>
+                <p class="text-xs font-bold text-slate-900 italic font-serif">
+                    OFFICE OF THE PUNONG BARANGAY • CITIZEN GRIEVANCE & COMPLAINT DESK
+                </p>
+                <p class="text-[9px] text-slate-600 tracking-normal mt-0.5">
+                    Barangay Hall Complex, Sayre Highway, North Poblacion, Maramag, Bukidnon 8714
+                </p>
+            </div>
+        </div>
+
+        <!-- Document Title & Case Metadata -->
+        <div class="text-center my-3">
+            <h2 class="text-base font-black uppercase tracking-wider text-black border-y border-slate-900 py-1 inline-block px-8">
+                CITIZEN OFFICIAL COMPLAINT & ACKNOWLEDGEMENT DOCKET
+            </h2>
+            <div class="flex justify-between items-center text-[10px] text-slate-700 mt-2 px-1">
+                <span>DOCKET REF NO: <strong class="text-xs text-black">{{ $complaint->reference_number }}</strong></span>
+                <span>DATE FILED: <strong class="text-black">{{ $complaint->created_at->format('F d, Y • h:i A') }}</strong></span>
+                <span>STATUS: <strong class="text-black uppercase">{{ strtoupper(str_replace('_', ' ', $complaint->status)) }}</strong></span>
+            </div>
+        </div>
+
+        <!-- Case Summary Information Table -->
+        <table class="w-full text-[11px] border-collapse border border-slate-900 mb-4">
+            <tbody>
+                <tr class="border-b border-slate-900">
+                    <td class="w-1/4 p-2 bg-slate-100 font-bold border-r border-slate-900">Complainant (Citizen):</td>
+                    <td class="w-1/4 p-2 border-r border-slate-900">{{ $complaint->resident?->name }}</td>
+                    <td class="w-1/4 p-2 bg-slate-100 font-bold border-r border-slate-900">Contact Number:</td>
+                    <td class="w-1/4 p-2">{{ $complaint->resident?->phone }}</td>
+                </tr>
+                <tr class="border-b border-slate-900">
+                    <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Purok Area:</td>
+                    <td class="p-2 border-r border-slate-900">{{ $complaint->purok?->name ?? 'Purok 5' }}</td>
+                    <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Incident Location:</td>
+                    <td class="p-2">{{ $complaint->incident_location }}</td>
+                </tr>
+                <tr class="border-b border-slate-900">
+                    <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Date & Time of Incident:</td>
+                    <td class="p-2 border-r border-slate-900">
+                        {{ $complaint->incident_date ? $complaint->incident_date->format('F d, Y') : 'N/A' }}
+                        @if($complaint->incident_time) at {{ $complaint->incident_time }} @endif
+                    </td>
+                    <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Classification:</td>
+                    <td class="p-2 font-bold">{{ $complaint->category?->name ?? 'General Civic Concern' }}</td>
+                </tr>
+                <tr>
+                    <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Priority Assessment:</td>
+                    <td class="p-2 border-r border-slate-900 font-bold uppercase">{{ strtoupper($complaint->final_priority) }}</td>
+                    <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Resident Address:</td>
+                    <td class="p-2 truncate">{{ $complaint->resident?->address }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Citizen Narrative & Statement -->
+        <div class="mb-4 border border-slate-900">
+            <div class="bg-slate-100 p-2 font-bold text-xs uppercase border-b border-slate-900 flex justify-between">
+                <span>I. STATEMENT OF INCIDENT / COMPLAINT NARRATIVE</span>
+                <span class="text-[10px] font-normal italic">Language: {{ $complaint->original_language ?? 'Cebuano/Bisaya' }}</span>
+            </div>
+            <div class="p-3 text-xs leading-relaxed whitespace-pre-line text-justify">
+                <p class="font-bold mb-1">Subject: {{ $complaint->title }}</p>
+                {{ $complaint->original_description }}
+            </div>
+        </div>
+
+        @if($complaint->english_summary)
+            <div class="mb-4 border border-slate-900">
+                <div class="bg-slate-100 p-2 font-bold text-xs uppercase border-b border-slate-900">
+                    II. ENGLISH SYNOPSIS
+                </div>
+                <div class="p-3 text-xs leading-relaxed">
+                    <p>{{ $complaint->english_summary }}</p>
+                </div>
+            </div>
+        @endif
+
+        <!-- Official Barangay Actions Taken -->
+        <div class="mb-4 border border-slate-900">
+            <div class="bg-slate-100 p-2 font-bold text-xs uppercase border-b border-slate-900">
+                III. OFFICIAL ACTION & REMARKS POSTED BY BARANGAY
+            </div>
+            <div class="p-3 text-xs leading-relaxed">
+                <p>{{ $complaint->resident_visible_remarks ?: 'Under evaluation and verification by the Barangay Secretariat.' }}</p>
+            </div>
+        </div>
+
+        <!-- Attached Photographic Evidence in Print -->
+        @if($complaint->attachments->isNotEmpty())
+            <div class="mb-4 border border-slate-900 page-break-inside-avoid">
+                <div class="bg-slate-100 p-2 font-bold text-xs uppercase border-b border-slate-900">
+                    IV. ATTACHED PHOTOGRAPHIC EVIDENCE
+                </div>
+                <div class="p-3 grid grid-cols-2 gap-3">
+                    @foreach($complaint->attachments as $attachment)
+                        @if($attachment->isImage())
+                            <div class="border border-slate-400 p-2 text-center">
+                                <img src="{{ $attachment->url() }}" alt="Case Photographic Evidence" class="h-44 w-full object-contain mx-auto mb-1">
+                                <p class="text-[9px] font-bold uppercase tracking-wider text-slate-800">Exhibit {{ chr(65 + $loop->index) }} - Photographic Evidence</p>
+                            </div>
+                        @else
+                            <div class="border border-slate-400 p-2 flex items-center gap-2">
+                                <span class="font-bold text-xs">[DOCUMENT ATTACHMENT]</span>
+                                <span class="text-[10px]">Official Case Exhibit File #{{ $loop->iteration }}</span>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        <!-- Signatory Certification Blocks -->
+        <div class="mt-8 pt-4 border-t-2 border-slate-900 page-break-inside-avoid">
+            <div class="grid grid-cols-2 gap-8 text-center text-xs">
+                <!-- Complainant Signature -->
+                <div class="flex flex-col justify-end">
+                    <div class="border-b border-slate-900 w-3/4 mx-auto mb-1"></div>
+                    <p class="font-bold text-[11px] uppercase">{{ $complaint->resident?->name }}</p>
+                    <p class="text-[9px] text-slate-700">Complainant / Citizen Signature</p>
+                </div>
+
+                <!-- Receiving Desk Officer -->
+                <div class="flex flex-col justify-end">
+                    <div class="border-b border-slate-900 w-3/4 mx-auto mb-1"></div>
+                    <p class="font-bold text-[11px] uppercase">BARANGAY SECRETARIAT</p>
+                    <p class="text-[9px] text-slate-700">Receiving Desk Officer / In-Charge</p>
+                </div>
+            </div>
+
+            <!-- Tracking Footer -->
+            <div class="flex justify-between items-center text-[9px] text-slate-500 mt-6 pt-2 border-t border-slate-200">
+                <span>Official Tracking Number: {{ $complaint->reference_number }} • Citizen Copy</span>
+                <span>Keep this printed copy for legal reference and verification with the Barangay Lupon</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- LIGHTBOX MODAL FOR FULL-SIZE IMAGE PREVIEWS -->
+    <!-- ========================================================================= -->
+    <div id="image-lightbox-modal" 
+         class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4 transition-all"
+         onclick="closeImageLightbox()">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between w-full text-white mb-2 px-2">
+                <span id="lightbox-filename" class="text-xs font-bold truncate max-w-md"></span>
+                <div class="flex items-center gap-2">
+                    <a id="lightbox-download-link" href="#" download class="px-3 py-1 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-colors">
+                        Download
+                    </a>
+                    <button type="button" onclick="closeImageLightbox()" class="p-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+            <img id="lightbox-image" src="" alt="Full preview" class="max-w-full max-h-[80vh] rounded-2xl object-contain shadow-2xl">
+        </div>
+    </div>
+
+    @push('scripts')
+    <script>
+        function openImageLightbox(src, filename) {
+            const modal = document.getElementById('image-lightbox-modal');
+            const img = document.getElementById('lightbox-image');
+            const nameEl = document.getElementById('lightbox-filename');
+            const downloadLink = document.getElementById('lightbox-download-link');
+            
+            img.src = src;
+            nameEl.textContent = filename;
+            downloadLink.href = src;
+            downloadLink.download = filename;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageLightbox() {
+            const modal = document.getElementById('image-lightbox-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageLightbox();
+            }
+        });
+    </script>
+    @endpush
 </x-layouts.resident>
