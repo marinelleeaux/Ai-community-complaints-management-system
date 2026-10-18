@@ -238,25 +238,38 @@
 
                 <!-- Card 6: Pending Accounts -->
                 <a href="{{ route('admin.residents.pending') }}" 
-                   class="relative overflow-hidden bg-white dark:bg-[#111C33] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-2xs hover:shadow-blue-purple hover:-translate-y-1 reflection-glass transition-all duration-300 flex items-center gap-4 group">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-500 flex items-center justify-center shrink-0 z-10 group-hover:scale-110 transition-transform shadow-2xs">
+                   class="relative overflow-hidden bg-white dark:bg-[#111C33] rounded-2xl p-5 border {{ $displayPendingAccounts > 0 ? 'border-amber-400/60 dark:border-amber-500/40 shadow-xs' : 'border-slate-200/80 dark:border-slate-800 shadow-2xs' }} hover:shadow-blue-purple hover:-translate-y-1 reflection-glass transition-all duration-300 flex items-center gap-4 group">
+                    <div class="w-12 h-12 rounded-2xl {{ $displayPendingAccounts > 0 ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-500' : 'bg-blue-50 dark:bg-blue-950/60 text-blue-500' }} flex items-center justify-center shrink-0 z-10 group-hover:scale-110 transition-transform shadow-2xs">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                         </svg>
                     </div>
                     <div class="flex-1 min-w-0 z-10">
-                        <div class="text-xs font-semibold text-slate-500 dark:text-slate-400">Pending Accounts</div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Pending Accounts</span>
+                            @if($displayPendingAccounts > 0)
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white animate-pulse">Action Required</span>
+                            @endif
+                        </div>
                         <div class="flex items-baseline gap-2 mt-0.5">
                             <span class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">{{ $displayPendingAccounts }}</span>
-                            <span class="inline-flex items-center text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                                &uarr; 5%
-                            </span>
+                            @if($displayPendingAccounts > 0)
+                                <span class="text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                                    Queue active
+                                </span>
+                            @else
+                                <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                                    All clear
+                                </span>
+                            @endif
                         </div>
-                        <div class="text-[11px] text-slate-400 truncate">Awaiting administrative verification...</div>
+                        <div class="text-[11px] text-slate-400 truncate flex items-center justify-between mt-0.5">
+                            <span>Review resident verifications &rarr;</span>
+                        </div>
                     </div>
                     <!-- Background Soft Wave -->
                     <div class="absolute -right-3 -bottom-3 w-24 h-16 pointer-events-none opacity-20">
-                        <svg viewBox="0 0 100 60" fill="none" class="w-full h-full"><path d="M0 40 Q 30 10, 60 30 T 100 20 L 100 60 L 0 60 Z" fill="#3B82F6"/></svg>
+                        <svg viewBox="0 0 100 60" fill="none" class="w-full h-full"><path d="M0 40 Q 30 10, 60 30 T 100 20 L 100 60 L 0 60 Z" fill="#F59E0B"/></svg>
                     </div>
                 </a>
 
@@ -535,16 +548,20 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 flex-1">
                     <a href="{{ route('admin.residents.pending') }}" 
-                       class="p-4 rounded-2xl bg-blue-50/80 hover:bg-blue-100/90 dark:bg-blue-950/40 dark:hover:bg-blue-900/60 border border-blue-100 dark:border-blue-900/50 flex flex-col justify-between transition-all group shadow-2xs">
+                       class="p-4 rounded-2xl {{ $displayPendingAccounts > 0 ? 'bg-amber-50/80 hover:bg-amber-100/90 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 border border-amber-200/80 dark:border-amber-900/50' : 'bg-blue-50/80 hover:bg-blue-100/90 dark:bg-blue-950/40 dark:hover:bg-blue-900/60 border border-blue-100 dark:border-blue-900/50' }} flex flex-col justify-between transition-all group shadow-2xs">
                         <div class="flex items-center justify-between">
-                            <span class="p-2.5 rounded-xl bg-white dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 shadow-2xs">
+                            <span class="p-2.5 rounded-xl bg-white {{ $displayPendingAccounts > 0 ? 'dark:bg-amber-900/60 text-amber-600 dark:text-amber-300' : 'dark:bg-blue-900/60 text-blue-600 dark:text-blue-300' }} shadow-2xs">
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                             </span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white">1 Pending</span>
+                            @if($displayPendingAccounts > 0)
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white animate-pulse">{{ $displayPendingAccounts }} Pending</span>
+                            @else
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">All Verified</span>
+                            @endif
                         </div>
                         <div class="mt-3 flex items-center justify-between">
                             <span class="text-xs font-black text-slate-800 dark:text-white">Verify Accounts</span>
-                            <span class="text-blue-600 group-hover:translate-x-1 transition-transform font-bold">&rarr;</span>
+                            <span class="{{ $displayPendingAccounts > 0 ? 'text-amber-600' : 'text-blue-600' }} group-hover:translate-x-1 transition-transform font-bold">&rarr;</span>
                         </div>
                     </a>
 
@@ -575,6 +592,96 @@
                     </a>
                 </div>
             </div>
+        </div>
+
+        <!-- 4.5. Pending Resident Account Verifications -->
+        <div class="bg-white dark:bg-[#111C33] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+                                Pending Resident Account Verifications
+                            </h2>
+                            @if($pendingApprovals > 0)
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white animate-pulse">
+                                    {{ $pendingApprovals }} Awaiting Action
+                                </span>
+                            @endif
+                        </div>
+                        <p class="text-xs text-slate-400">
+                            Identity verification and portal authorization queue for newly registered residents
+                        </p>
+                    </div>
+                </div>
+
+                <a href="{{ route('admin.residents.pending') }}" 
+                   class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors">
+                    <span>Manage Full Verification Queue</span>
+                    <span class="font-bold">&rarr;</span>
+                </a>
+            </div>
+
+            @if(isset($pendingResidentsList) && $pendingResidentsList->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
+                    @foreach($pendingResidentsList as $applicant)
+                        <div class="relative p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800/80 hover:border-amber-400/60 dark:hover:border-amber-500/40 hover:shadow-md transition-all group flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+                                            {{ $applicant->initials() }}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white truncate">{{ $applicant->name }}</h3>
+                                            <span class="inline-block text-[10px] font-semibold text-blue-600 dark:text-blue-400">{{ $applicant->purok?->name ?? 'Purok' }}</span>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300">Pending</span>
+                                </div>
+
+                                <div class="mt-3 space-y-1 text-[11px] text-slate-500 dark:text-slate-400">
+                                    <div class="flex items-center gap-1.5 truncate">
+                                        <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                        <span class="truncate">{{ $applicant->email }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 truncate">
+                                        <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Applied {{ $applicant->created_at->diffForHumans() }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Action Form -->
+                            <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center gap-2">
+                                <form method="POST" action="{{ route('admin.residents.approve', $applicant->id) }}" class="flex-1">
+                                    @csrf
+                                    <button type="submit" class="w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-[11px] shadow-xs hover:shadow transition-all flex items-center justify-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                        <span>Approve Resident</span>
+                                    </button>
+                                </form>
+                                <a href="{{ route('admin.residents.pending') }}" class="py-1.5 px-3 rounded-xl bg-slate-200/70 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-[11px] transition-colors">
+                                    Details
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="mt-5 py-8 text-center bg-slate-50/50 dark:bg-slate-900/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-2">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <h3 class="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-200">All Resident Accounts Verified</h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5">There are no pending resident registration applications awaiting approval at this time.</p>
+                </div>
+            @endif
         </div>
 
         <!-- 5. Recent Complaints Table -->
