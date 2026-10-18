@@ -32,7 +32,15 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })->create();
 
-if (isset($_SERVER['VERCEL']) || isset($_ENV['VERCEL']) || env('VERCEL') || str_contains(env('APP_URL', ''), 'vercel.app')) {
+if (
+    isset($_SERVER['VERCEL']) ||
+    isset($_ENV['VERCEL']) ||
+    isset($_SERVER['VERCEL_URL']) ||
+    isset($_SERVER['LAMBDA_TASK_ROOT']) ||
+    isset($_SERVER['AWS_LAMBDA_FUNCTION_NAME']) ||
+    (isset($_SERVER['HTTP_HOST']) && str_contains($_SERVER['HTTP_HOST'], 'vercel.app')) ||
+    is_dir('/tmp/storage')
+) {
     $app->useStoragePath('/tmp/storage');
 }
 

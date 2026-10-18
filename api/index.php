@@ -12,9 +12,22 @@ $storageDirs = [
 
 foreach ($storageDirs as $dir) {
     if (!is_dir($dir)) {
-        @mkdir($dir, 0755, true);
+        @mkdir($dir, 0777, true);
     }
 }
+
+// Set environment flags for Vercel serverless environment
+putenv('VERCEL=1');
+$_SERVER['VERCEL'] = '1';
+$_ENV['VERCEL'] = '1';
+putenv('CACHE_STORE=file');
+putenv('CACHE_DRIVER=file');
+putenv('CACHE_PATH=/tmp/storage/framework/cache/data');
+$_ENV['CACHE_STORE'] = 'file';
+$_ENV['CACHE_DRIVER'] = 'file';
+$_ENV['CACHE_PATH'] = '/tmp/storage/framework/cache/data';
+putenv('SESSION_DRIVER=database');
+$_ENV['SESSION_DRIVER'] = 'database';
 
 // Redirect runtime caches and compiled templates to /tmp
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
@@ -23,12 +36,6 @@ putenv('APP_EVENTS_CACHE=/tmp/bootstrap/cache/events.php');
 putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php');
 putenv('APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php');
 putenv('APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php');
-putenv('CACHE_STORE=file');
-putenv('CACHE_DRIVER=file');
-putenv('SESSION_DRIVER=cookie');
-$_ENV['CACHE_STORE'] = 'file';
-$_ENV['CACHE_DRIVER'] = 'file';
-$_ENV['SESSION_DRIVER'] = 'cookie';
 
 // Ensure root script routing for Laravel URL generator
 $_SERVER['SCRIPT_NAME'] = '/index.php';
