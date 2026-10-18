@@ -447,8 +447,14 @@
                                         <td class="py-3 font-semibold text-slate-900 dark:text-white max-w-[150px] truncate" title="{{ $complaint->title }}">
                                             {{ $complaint->title }}
                                         </td>
-                                        <td class="py-3 text-slate-500 whitespace-nowrap">
-                                            {{ $complaint->incident_date?->format('M d, Y') ?? $complaint->created_at->format('M d, Y') }}
+                                        <td class="py-3 whitespace-nowrap">
+                                            <div class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                                                {{ $complaint->created_at->format('M d, Y') }}
+                                            </div>
+                                            <div class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1 mt-0.5">
+                                                <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/></svg>
+                                                <span>{{ $complaint->created_at->format('h:i A') }}</span>
+                                            </div>
                                         </td>
                                         <td class="py-3">
                                             @if($isPending)
@@ -468,11 +474,11 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="py-3 text-right">
+                                        <td class="py-3 text-right whitespace-nowrap">
                                             <a href="{{ route('resident.complaints.show', $complaint->id) }}" 
-                                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/70 hover:bg-blue-600 text-blue-700 dark:text-blue-300 hover:text-white dark:hover:text-white text-xs font-bold transition-all shadow-2xs hover:shadow-md hover:scale-[1.02] active:scale-95 group/vd"
-                                               title="View details">
-                                                <svg class="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 group-hover/vd:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs hover:shadow transition-all hover:scale-102 active:scale-95 shrink-0"
+                                               title="View Complaint Details">
+                                                <svg class="w-3.5 h-3.5 text-blue-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                                 </svg>

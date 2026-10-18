@@ -67,11 +67,14 @@
             <div class="flex items-center gap-2">
                 <button type="button" 
                         onclick="window.print()" 
-                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-[#12345B] via-blue-700 to-indigo-700 hover:from-[#0B2340] hover:to-blue-900 text-white font-extrabold text-xs shadow-md shadow-blue-900/20 hover:scale-[1.02] active:scale-95 transition-all">
-                    <svg class="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    <span>Print Official Complaint Record</span>
+                        class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-slate-900 via-blue-900 to-[#12345B] hover:from-black hover:via-blue-950 hover:to-slate-900 text-white font-extrabold text-xs shadow-md shadow-blue-950/20 hover:shadow-lg hover:scale-102 active:scale-95 transition-all border border-blue-400/20 group cursor-pointer"
+                        title="Print Official Complaint Record">
+                    <div class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-slate-950 text-amber-300 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                    </div>
+                    <span>Print Official Incident Record</span>
                 </button>
             </div>
         </div>
@@ -94,18 +97,34 @@
                         </h3>
                     </div>
 
-                    <!-- Incident Date and Landmark -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-xs">
+                    <!-- Incident & Submission Metadata Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-xs">
                         <div>
-                            <span class="text-slate-400 block font-medium">Incident Date</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200">
+                            <span class="text-slate-400 block font-medium">Date & Time Submitted</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 block">
+                                {{ $complaint->created_at->format('M d, Y') }}
+                            </span>
+                            <span class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold block">
+                                {{ $complaint->created_at->format('h:i:s A') }}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block font-medium">Incident Occurrence</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 block">
                                 {{ $complaint->incident_date ? $complaint->incident_date->format('M d, Y') : 'N/A' }}
-                                @if($complaint->incident_time) ({{ $complaint->incident_time }}) @endif
+                            </span>
+                            <span class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block">
+                                @if($complaint->incident_time)
+                                    {{ \Carbon\Carbon::parse($complaint->incident_time)->format('h:i A') }}
+                                @else
+                                    Time Not Specified
+                                @endif
                             </span>
                         </div>
                         <div>
                             <span class="text-slate-400 block font-medium">Purok Area</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ $complaint->purok?->name ?? 'Purok 5' }}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 block truncate">{{ $complaint->purok?->name ?? 'Purok 5' }}</span>
+                            <span class="text-[11px] text-slate-500 block truncate">{{ $complaint->category?->name ?? 'General' }}</span>
                         </div>
                         <div>
                             <span class="text-slate-400 block font-medium">Specific Landmark</span>
@@ -613,10 +632,23 @@
                     <td class="p-2">{{ $complaint->incident_location }}</td>
                 </tr>
                 <tr class="border-b border-slate-900">
-                    <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Date & Time of Incident:</td>
-                    <td class="p-2 border-r border-slate-900">
+                    <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Date of Incident:</td>
+                    <td class="p-2 border-r border-slate-900 font-bold">
                         {{ $complaint->incident_date ? $complaint->incident_date->format('F d, Y') : 'N/A' }}
-                        @if($complaint->incident_time) at {{ $complaint->incident_time }} @endif
+                    </td>
+                    <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Time of Incident:</td>
+                    <td class="p-2 font-bold">
+                        @if($complaint->incident_time)
+                            {{ \Carbon\Carbon::parse($complaint->incident_time)->format('h:i A') }}
+                        @else
+                            <span class="italic font-normal text-slate-600">Unspecified by Complainant</span>
+                        @endif
+                    </td>
+                </tr>
+                <tr class="border-b border-slate-900">
+                    <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Date & Time Submitted:</td>
+                    <td class="p-2 border-r border-slate-900 font-bold">
+                        {{ $complaint->created_at->format('F d, Y • h:i:s A') }}
                     </td>
                     <td class="p-2 bg-slate-100 font-bold border-r border-slate-900">Case Classification:</td>
                     <td class="p-2 font-bold">{{ $complaint->category?->name ?? 'General Civic Concern' }}</td>

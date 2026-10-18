@@ -49,8 +49,8 @@ class ComplaintController extends Controller
         }
 
         $complaints = $query->latest()->paginate(15)->withQueryString();
-        $categories = ComplaintCategory::where('is_active', true)->get();
-        $puroks = Purok::where('is_active', true)->get();
+        $categories = ComplaintCategory::getActiveCached();
+        $puroks = Purok::getActiveCached();
 
         return view('admin.complaints.index', compact('complaints', 'categories', 'puroks'));
     }

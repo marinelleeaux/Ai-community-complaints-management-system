@@ -104,8 +104,14 @@
                                 <td class="p-4 text-slate-400">{{ $res->created_at->format('M d, Y') }}</td>
                                 <td class="p-4 pr-6 text-right">
                                     <div class="flex items-center justify-end gap-2">
-                                        <a href="{{ route('admin.residents.show', $res->id) }}" class="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 text-xs font-bold transition-colors">
-                                            View Details
+                                        <a href="{{ route('admin.residents.show', $res->id) }}" 
+                                           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs hover:shadow transition-all hover:scale-102 active:scale-95 shrink-0"
+                                           title="View Complainant Details">
+                                            <svg class="w-3.5 h-3.5 text-blue-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            <span>View Details</span>
                                         </a>
                                         <form method="POST" action="{{ route('admin.residents.destroy', $res->id) }}" onsubmit="return confirmAction(event, 'Are you sure you want to delete this account?', 'Delete Complainant Account', 'Yes, Delete Account');" class="inline">
                                             @csrf

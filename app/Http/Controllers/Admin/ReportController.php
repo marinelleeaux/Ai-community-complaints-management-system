@@ -86,45 +86,66 @@ class ReportController extends Controller
         }
 
         $complaints = $query->orderBy('incident_date', 'desc')->get();
-        $filename = 'barangay_north_poblacion_complaints_' . date('Y-m-d_His') . '.csv';
+        $filename = 'Barangay_North_Poblacion_Complaints_Report_' . date('Y-m-d_His') . '.csv';
 
         return response()->streamDownload(function () use ($complaints) {
             $handle = fopen('php://output', 'w');
             
-            // UTF-8 BOM for Excel compatibility
+            // UTF-8 BOM for Microsoft Excel compatibility
             fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
 
             fputcsv($handle, [
-                'Reference Number',
-                'Title',
-                'Category',
-                'Purok',
-                'Location',
+                'Case Reference No.',
+                'Case Title',
+                'Category / Classification',
+                'Purok Jurisdiction',
+                'Incident Landmark / Location',
                 'Incident Date',
-                'Status',
-                'Priority',
-                'Resident Name',
-                'Assigned Official',
+                'Incident Time',
                 'Date Submitted',
+                'Time Submitted',
+                'Current Status',
+                'Priority Level',
+                'Complainant Name',
+                'Complainant Contact No.',
+                'Complainant Email',
+                'Case Description / Narrative',
+                'AI English Summary',
+                'Investigating Official Assigned',
                 'Date Resolved',
-                'Public Remarks',
+                'Barangay Official Remarks & Action Taken',
             ]);
 
             foreach ($complaints as $c) {
+                $incidentTimeFormatted = 'N/A';
+                if ($c->incident_time) {
+                    try {
+                        $incidentTimeFormatted = \Carbon\Carbon::parse($c->incident_time)->format('h:i A');
+                    } catch (\Exception) {
+                        $incidentTimeFormatted = (string) $c->incident_time;
+                    }
+                }
+
                 fputcsv($handle, [
                     $c->reference_number,
                     $c->title,
                     $c->category?->name ?? 'Uncategorized',
                     $c->purok?->name ?? 'N/A',
                     $c->incident_location,
-                    $c->incident_date->format('Y-m-d'),
-                    ucfirst(str_replace('_', ' ', $c->status)),
-                    ucfirst($c->final_priority),
-                    $c->resident?->name ?? 'Anonymous',
-                    $c->assignedOfficial?->name ?? 'Unassigned',
-                    $c->created_at->format('Y-m-d H:i'),
-                    $c->resolved_at ? $c->resolved_at->format('Y-m-d H:i') : 'N/A',
-                    $c->resident_visible_remarks ?? '',
+                    $c->incident_date ? $c->incident_date->format('Y-m-d') : 'N/A',
+                    $incidentTimeFormatted,
+                    $c->created_at->format('Y-m-d'),
+                    $c->created_at->format('h:i:s A'),
+                    ucwords(str_replace('_', ' ', $c->status)),
+                    strtoupper($c->final_priority),
+                    $c->resident?->name ?? 'Anonymous Citizen',
+                    $c->resident?->phone ?? 'N/A',
+                    $c->resident?->email ?? 'N/A',
+                    preg_replace('/\s+/', ' ', trim((string) $c->original_description)),
+                    preg_replace('/\s+/', ' ', trim((string) ($c->english_summary ?? ''))),
+                    $c->assignedOfficial?->name ?? 'Unassigned / Secretariat',
+                    $c->resolved_at ? $c->resolved_at->format('Y-m-d h:i A') : 'Pending Resolution',
+                    preg_replace('/\s+/', ' ', trim((string) ($c->resident_visible_remarks ?? 'None'))),
                 ]);
             }
 

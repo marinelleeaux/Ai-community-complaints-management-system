@@ -62,19 +62,26 @@
                 <!-- Print Report Button -->
                 <button type="button" 
                         onclick="window.print()" 
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition-all hover:scale-105 active:scale-95">
-                    <svg class="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
+                        class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-slate-900 via-blue-900 to-[#12345B] hover:from-black hover:via-blue-950 hover:to-slate-900 text-white font-extrabold text-xs shadow-md shadow-blue-950/20 hover:shadow-lg hover:scale-102 active:scale-95 transition-all border border-blue-400/20 group cursor-pointer"
+                        title="Print Executive Report">
+                    <div class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-slate-950 text-amber-300 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                    </div>
                     <span>Print Executive Report</span>
                 </button>
 
+                <!-- Export CSV Button -->
                 <a href="{{ route('admin.reports.export', request()->query()) }}"
-                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md shadow-emerald-600/20 transition-all">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                    <span>Export CSV</span>
+                   class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:via-teal-700 hover:to-emerald-800 text-white font-extrabold text-xs shadow-md shadow-emerald-900/20 hover:shadow-lg hover:scale-102 active:scale-95 transition-all border border-emerald-400/20 group cursor-pointer"
+                   title="Export Official CSV">
+                    <div class="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white group-hover:text-emerald-700 text-emerald-200 transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <span>Export Official CSV</span>
                 </a>
             </div>
         </div>
@@ -250,13 +257,24 @@
                                         {{ str_replace('_', ' ', $c->status) }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-slate-500 font-mono">
-                                    {{ $c->incident_date ? $c->incident_date->format('M d, Y') : 'N/A' }}
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                                        {{ $c->created_at->format('M d, Y') }}
+                                    </div>
+                                    <div class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1 mt-0.5">
+                                        <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/></svg>
+                                        <span>{{ $c->created_at->format('h:i A') }}</span>
+                                    </div>
                                 </td>
-                                <td class="px-4 py-3 text-right">
-                                    <a href="{{ route('admin.complaints.show', $c->id) }}"
-                                       class="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-700 dark:text-slate-300 font-semibold transition-colors">
-                                        View
+                                <td class="px-4 py-3 text-right whitespace-nowrap">
+                                    <a href="{{ route('admin.complaints.show', $c->id) }}" 
+                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs hover:shadow transition-all hover:scale-102 active:scale-95 shrink-0"
+                                       title="View Complaint Details">
+                                        <svg class="w-3.5 h-3.5 text-blue-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        <span>View Details</span>
                                     </a>
                                 </td>
                             </tr>

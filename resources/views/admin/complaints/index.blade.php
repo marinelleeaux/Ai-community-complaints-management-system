@@ -77,7 +77,7 @@
                             <th class="p-4">Location</th>
                             <th class="p-4">Priority</th>
                             <th class="p-4">Status</th>
-                            <th class="p-4">Date</th>
+                            <th class="p-4">Date & Time Submitted</th>
                             <th class="p-4 pr-6 text-right">Action</th>
                         </tr>
                     </thead>
@@ -134,12 +134,29 @@
                                         {{ $b['label'] }}
                                     </span>
                                 </td>
-                                <td class="p-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                                    {{ $c->incident_date ? $c->incident_date->format('M d, Y') : $c->created_at->format('M d, Y') }}
+                                <td class="p-4 whitespace-nowrap">
+                                    <div class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                                        {{ $c->created_at->format('M d, Y') }}
+                                    </div>
+                                    <div class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1 mt-0.5">
+                                        <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/></svg>
+                                        <span>{{ $c->created_at->format('h:i A') }}</span>
+                                    </div>
+                                    @if($c->incident_date)
+                                        <div class="text-[10px] text-slate-400 mt-1">
+                                            Incident: {{ $c->incident_date->format('M d, Y') }}@if($c->incident_time) • {{ \Carbon\Carbon::parse($c->incident_time)->format('h:i A') }}@endif
+                                        </div>
+                                    @endif
                                 </td>
-                                <td class="p-4 pr-6 text-right">
-                                    <a href="{{ route('admin.complaints.show', $c->id) }}" class="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-700 dark:text-blue-300 font-bold text-xs inline-flex items-center gap-1 transition-colors">
-                                        Manage &rarr;
+                                <td class="p-4 pr-6 text-right whitespace-nowrap">
+                                    <a href="{{ route('admin.complaints.show', $c->id) }}" 
+                                       class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs hover:shadow transition-all hover:scale-102 active:scale-95 shrink-0"
+                                       title="View Complaint Details">
+                                        <svg class="w-3.5 h-3.5 text-blue-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        <span>View Details</span>
                                     </a>
                                 </td>
                             </tr>

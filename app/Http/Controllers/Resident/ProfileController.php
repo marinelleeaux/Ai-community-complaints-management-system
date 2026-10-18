@@ -21,7 +21,7 @@ class ProfileController extends Controller
     public function show()
     {
         $user = Auth::user()->load('purok');
-        $puroks = Purok::where('is_active', true)->get();
+        $puroks = Purok::getActiveCached();
         return view('resident.profile.show', compact('user', 'puroks'));
     }
 
