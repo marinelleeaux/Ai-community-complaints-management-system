@@ -50,6 +50,7 @@
   ],
   "env": {
     "APP_ENV": "production",
+    "APP_DEBUG": "true",
     "APP_URL": "https://ai-community-complaints-management.vercel.app",
     "ASSET_URL": "https://ai-community-complaints-management.vercel.app",
     "APP_CONFIG_CACHE": "/tmp/config.php",

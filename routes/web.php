@@ -29,6 +29,31 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+// Diagnostic debug route
+Route::get('/debug-err', function () {
+    try {
+        $p = \App\Models\Purok::first();
+        return response()->json([
+            'success' => true,
+            'purok' => $p,
+            'db_host' => config('database.connections.pgsql.host'),
+            'sslmode' => config('database.connections.pgsql.sslmode'),
+            'storage_path' => storage_path(),
+            'cache_driver' => config('cache.default'),
+            'session_driver' => config('session.driver'),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString(),
+            'db_host' => config('database.connections.pgsql.host'),
+            'sslmode' => config('database.connections.pgsql.sslmode'),
+        ], 500);
+    }
+});
+
 // Root redirect
 Route::get('/', function () {
     if (Auth::check()) {
