@@ -67,8 +67,10 @@ class ComplaintController extends Controller
             'assignedOfficial',
         ])->findOrFail($id);
 
-        $categories = ComplaintCategory::where('is_active', true)->get();
-        $officials = User::whereIn('role', ['admin', 'official', 'super_admin'])->get();
+        $categories = ComplaintCategory::getActiveCached();
+        $officials = Cache::remember('admin_officials_list', \App\Services\PerformanceCache::LOOKUP_TTL, function () {
+            return User::whereIn('role', ['admin', 'official', 'super_admin'])->get();
+        });
 
         return view('admin.complaints.show', compact('complaint', 'categories', 'officials'));
     }

@@ -38,13 +38,13 @@
     @php
         $user = Auth::user();
         $residentUserId = $user?->id;
-        $myActiveComplaintsCount = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_active_complaints_count", 30, function() use ($residentUserId) {
+        $myActiveComplaintsCount = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_active_complaints_count", \App\Services\PerformanceCache::FEEDS_TTL, function() use ($residentUserId) {
             return \App\Models\Complaint::where('resident_id', $residentUserId)->whereIn('status', ['submitted', 'under_review'])->count();
         }) : 0;
-        $unreadNotifCount = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_unread_notifs_count", 120, function() use ($residentUserId) {
+        $unreadNotifCount = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_unread_notifs_count", \App\Services\PerformanceCache::FEEDS_TTL, function() use ($residentUserId) {
             return \App\Models\Notification::where('recipient_id', $residentUserId)->where('is_read', false)->count();
         }) : 0;
-        $recentNotifications = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_recent_notifs", 120, function() use ($residentUserId) {
+        $recentNotifications = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_recent_notifs", \App\Services\PerformanceCache::FEEDS_TTL, function() use ($residentUserId) {
             return \App\Models\Notification::where('recipient_id', $residentUserId)->latest()->take(6)->get();
         }) : collect();
     @endphp

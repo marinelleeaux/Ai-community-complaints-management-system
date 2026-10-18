@@ -139,31 +139,18 @@ if (document.querySelector('meta[name="user-authenticated"]')) {
 }
 
 // ==============================================================================
-// INSTANT CLICK FEEDBACK & NAVIGATION ACCELERATOR
-// ==============================================================================
-document.addEventListener('DOMContentLoaded', () => {
-    // Add lightweight active ripple/feedback on actionable buttons & links
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('button[type="submit"], a.btn-action, form button:not([type="button"])');
-        if (btn && !btn.disabled) {
-            btn.classList.add('scale-98', 'opacity-90');
-            setTimeout(() => {
-                if (btn) btn.classList.remove('scale-98', 'opacity-90');
-            }, 300);
-        }
-    }, { passive: true });
-});
-
-// ==============================================================================
-// INSTANT NAVIGATION ACCELERATOR (Top progress bar + Hover/Touch Prefetching)
+// INSTANT CLICK FEEDBACK & PROGRESS ACCELERATOR (Zero Server Contention)
 // ==============================================================================
 (function () {
     let progressBar = null;
+    let progressTimer = null;
+
     function getProgressBar() {
         if (!progressBar) {
             progressBar = document.createElement('div');
             progressBar.id = 'system-top-loader';
-            progressBar.className = 'fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 z-50 pointer-events-none transition-all duration-300 opacity-0 -translate-x-full';
+            progressBar.className = 'fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 z-50 pointer-events-none transition-all duration-200 opacity-0';
+            progressBar.style.width = '0%';
             document.body.appendChild(progressBar);
         }
         return progressBar;
@@ -171,54 +158,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startTopLoader() {
         const bar = getProgressBar();
-        bar.style.transition = 'transform 0.4s ease, opacity 0.1s ease';
+        clearInterval(progressTimer);
+        bar.style.transition = 'width 0.2s ease, opacity 0.15s ease';
         bar.style.opacity = '1';
-        bar.style.transform = 'translateX(-30%)';
+        bar.style.width = '30%';
+
+        let width = 30;
+        progressTimer = setInterval(() => {
+            if (width < 88) {
+                width += (88 - width) * 0.18;
+                bar.style.width = width + '%';
+            }
+        }, 120);
     }
 
     function finishTopLoader() {
         if (!progressBar) return;
-        progressBar.style.transform = 'translateX(0%)';
+        clearInterval(progressTimer);
+        progressBar.style.transition = 'width 0.15s ease, opacity 0.2s ease';
+        progressBar.style.width = '100%';
         setTimeout(() => {
             progressBar.style.opacity = '0';
             setTimeout(() => {
-                progressBar.style.transform = 'translateX(-100%)';
-            }, 300);
-        }, 200);
+                progressBar.style.width = '0%';
+            }, 250);
+        }, 120);
     }
 
-    const prefetchedUrls = new Set();
-    function prefetchUrl(url) {
-        if (!url || prefetchedUrls.has(url)) return;
-        try {
-            const parsed = new URL(url, window.location.origin);
-            if (parsed.origin !== window.location.origin) return;
-            if (parsed.pathname === window.location.pathname) return;
-            if (parsed.pathname.includes('/logout') || parsed.pathname.includes('/delete')) return;
-
-            prefetchedUrls.add(url);
-            const linkEl = document.createElement('link');
-            linkEl.rel = 'prefetch';
-            linkEl.href = url;
-            document.head.appendChild(linkEl);
-        } catch (_) {}
-    }
-
-    document.addEventListener('mouseover', (e) => {
-        const a = e.target.closest('a[href]');
-        if (a && a.href && !a.href.startsWith('javascript:') && !a.href.includes('#')) {
-            prefetchUrl(a.href);
-        }
-    }, { passive: true });
-
-    document.addEventListener('touchstart', (e) => {
-        const a = e.target.closest('a[href]');
-        if (a && a.href && !a.href.startsWith('javascript:') && !a.href.includes('#')) {
-            prefetchUrl(a.href);
-        }
-    }, { passive: true });
-
+    // Immediate click feedback & loader initiation on links and submits
     document.addEventListener('click', (e) => {
+        // 1. Button active tactile response
+        const btn = e.target.closest('button, a.btn, a[href]');
+        if (btn && !btn.disabled) {
+            btn.classList.add('scale-98');
+            setTimeout(() => {
+                if (btn) btn.classList.remove('scale-98');
+            }, 200);
+        }
+
+        // 2. Navigation Top Loader for internal anchor clicks
         const a = e.target.closest('a[href]');
         if (a && a.href && !a.target && !e.ctrlKey && !e.metaKey && !a.href.startsWith('javascript:') && !a.href.includes('#')) {
             try {
@@ -229,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (_) {}
         }
 
+        // 3. Form submission loader
         const submitBtn = e.target.closest('button[type="submit"]');
         if (submitBtn && submitBtn.form) {
             startTopLoader();
@@ -237,4 +216,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('pageshow', finishTopLoader);
 })();
+
 

@@ -39,7 +39,7 @@ class ResidentController extends Controller
         }
 
         $residents = $query->latest()->paginate(15)->withQueryString();
-        $puroks = Purok::where('is_active', true)->get();
+        $puroks = Purok::getActiveCached();
 
         return view('admin.residents.index', compact('residents', 'puroks'));
     }

@@ -121,21 +121,20 @@ class DashboardController extends Controller
                 $overview6MData[] = $complaintRecords->filter(fn ($c) => $c->created_at && $c->created_at->format('Y-m') === $monthDate->format('Y-m'))->count();
             }
 
-            // Live Categories with Complaint Counts for Bar Chart
+            // Live Categories with Complaint Counts for Bar Chart & Breakdown (Single Query)
             $categoryPalette = ['#2563EB', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#06B6D4', '#EC4899', '#84CC16', '#64748B'];
-            $categoriesWithCounts = ComplaintCategory::withCount('complaints')
+            $categories = ComplaintCategory::withCount('complaints')
                 ->where('is_active', true)
                 ->orderByDesc('complaints_count')
-                ->take(6)
                 ->get();
 
-            $categoryBars = $categoriesWithCounts->map(function ($cat, $idx) use ($categoryPalette) {
+            $categoryBars = $categories->take(6)->values()->map(function ($cat, $idx) use ($categoryPalette) {
                 return [
                     'label' => $cat->name,
                     'count' => (int) $cat->complaints_count,
                     'color' => $categoryPalette[$idx % count($categoryPalette)],
                 ];
-            })->values()->toArray();
+            })->toArray();
 
             // Registration months for user chart
             $userRecords = User::where('role', 'resident')->select('created_at')->get();
@@ -164,9 +163,6 @@ class DashboardController extends Controller
 
             $publishedAnnouncements = Announcement::where('publication_status', 'published')->count();
 
-            $categories = ComplaintCategory::withCount('complaints')
-                ->where('is_active', true)
-                ->get();
             $categoriesData = $categories->map(fn ($cat) => [
                 'name' => $cat->name,
                 'count' => $cat->complaints_count,

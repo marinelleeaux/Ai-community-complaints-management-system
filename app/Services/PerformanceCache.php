@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\Cache;
 class PerformanceCache
 {
     /**
-     * Cache duration in seconds (5 minutes for static/lookup, 60 seconds for live feeds)
+     * Cache duration in seconds (1 hour for static/lookup, 30 min for metrics, 10 min for feeds)
      */
-    public const LOOKUP_TTL = 300;
-    public const METRICS_TTL = 60;
-    public const FEEDS_TTL = 30;
+    public const LOOKUP_TTL = 3600;
+    public const METRICS_TTL = 1800;
+    public const FEEDS_TTL = 600;
 
     /**
      * Clear all admin dashboard and layout caches
@@ -23,6 +23,7 @@ class PerformanceCache
         Cache::forget('admin_dashboard_pending_residents');
         Cache::forget('admin_nav_pending_complaints');
         Cache::forget('admin_nav_pending_residents');
+        Cache::forget('admin_officials_list');
     }
 
     /**
