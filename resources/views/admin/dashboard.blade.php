@@ -672,7 +672,9 @@
                             <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center gap-2">
                                 <form method="POST" action="{{ route('admin.residents.approve', $applicant->id) }}" class="flex-1">
                                     @csrf
-                                    <button type="submit" class="w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-[11px] shadow-xs hover:shadow transition-all flex items-center justify-center gap-1">
+                                    <button type="submit" 
+                                            onclick="return confirmAction(event, 'Approve {{ addslashes($applicant->name) }} as a verified resident of Barangay North Poblacion?', 'Approve Resident Registration', 'Yes, Approve Resident', false);"
+                                            class="w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-[11px] shadow-xs hover:shadow transition-all flex items-center justify-center gap-1">
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                         <span>Approve Resident</span>
                                     </button>

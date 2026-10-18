@@ -87,7 +87,7 @@
                             <form method="POST" action="{{ route('admin.residents.approve', $res->id) }}">
                                 @csrf
                                 <button type="submit" 
-                                        onclick="return confirm('Approve {{ addslashes($res->name) }} as a verified resident of Barangay North Poblacion?')"
+                                        onclick="return confirmAction(event, 'Approve {{ addslashes($res->name) }} as a verified resident of Barangay North Poblacion?', 'Approve Resident Registration', 'Yes, Approve Resident', false);"
                                         class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold text-xs shadow-md shadow-emerald-900/20 hover:shadow-lg transition-all hover:scale-102 flex items-center gap-1.5">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>

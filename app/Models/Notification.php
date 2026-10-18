@@ -29,6 +29,21 @@ class Notification extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saved(function ($notification) {
+            if ($notification->recipient_id) {
+                \App\Services\PerformanceCache::clearResident($notification->recipient_id);
+            }
+        });
+
+        static::deleted(function ($notification) {
+            if ($notification->recipient_id) {
+                \App\Services\PerformanceCache::clearResident($notification->recipient_id);
+            }
+        });
+    }
+
     public function recipient(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recipient_id');

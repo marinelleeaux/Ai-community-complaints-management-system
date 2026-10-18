@@ -37,17 +37,17 @@
 
     @php
         $adminUserId = Auth::id();
-        $pendingComplaintsCount = \Illuminate\Support\Facades\Cache::remember('admin_nav_pending_complaints', 15, function() {
+        $pendingComplaintsCount = \Illuminate\Support\Facades\Cache::remember('admin_nav_pending_complaints', 120, function() {
             return \App\Models\Complaint::whereIn('status', ['submitted', 'under_review'])->count();
         });
-        $pendingResidentsCount = \Illuminate\Support\Facades\Cache::remember('admin_nav_pending_residents', 15, function() {
+        $pendingResidentsCount = \Illuminate\Support\Facades\Cache::remember('admin_nav_pending_residents', 120, function() {
             return \App\Models\User::where('role', 'resident')->where('account_status', 'pending')->count();
         });
         $displayPendingAcc = $pendingResidentsCount;
-        $unreadNotifCount = $adminUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$adminUserId}_unread_notifs_count", 15, function() use ($adminUserId) {
+        $unreadNotifCount = $adminUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$adminUserId}_unread_notifs_count", 120, function() use ($adminUserId) {
             return \App\Models\Notification::where('recipient_id', $adminUserId)->where('is_read', false)->count();
         }) : 0;
-        $recentNotifications = $adminUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$adminUserId}_recent_notifs", 15, function() use ($adminUserId) {
+        $recentNotifications = $adminUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$adminUserId}_recent_notifs", 120, function() use ($adminUserId) {
             return \App\Models\Notification::where('recipient_id', $adminUserId)->latest()->take(6)->get();
         }) : collect();
     @endphp

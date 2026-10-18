@@ -38,10 +38,10 @@
     @php
         $user = Auth::user();
         $residentUserId = $user?->id;
-        $unreadNotifCount = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_unread_notifs_count", 15, function() use ($residentUserId) {
+        $unreadNotifCount = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_unread_notifs_count", 120, function() use ($residentUserId) {
             return \App\Models\Notification::where('recipient_id', $residentUserId)->where('is_read', false)->count();
         }) : 0;
-        $recentNotifications = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_recent_notifs", 15, function() use ($residentUserId) {
+        $recentNotifications = $residentUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$residentUserId}_recent_notifs", 120, function() use ($residentUserId) {
             return \App\Models\Notification::where('recipient_id', $residentUserId)->latest()->take(6)->get();
         }) : collect();
     @endphp

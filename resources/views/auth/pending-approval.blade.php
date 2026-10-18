@@ -28,7 +28,7 @@
                 </h1>
 
                 <p class="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
-                    Maayong adlaw, <strong class="text-slate-800 dark:text-white font-bold">{{ $user?->name ?? 'Resident' }}</strong>! Your registration is queued for official identity confirmation by <strong>Barangay North Poblacion</strong>.
+                    Hello, <strong class="text-slate-800 dark:text-white font-bold">{{ $user?->name ?? 'Resident' }}</strong>! Your registration is queued for official identity confirmation by <strong>Barangay North Poblacion</strong>.
                 </p>
 
                 <!-- Compact 3-Step Verification Timeline -->
