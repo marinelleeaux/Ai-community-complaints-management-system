@@ -1,0 +1,13 @@
+.env
+.env.*
+/vendor
+/node_modules
+/.git
+/.github
+/tests
+/phpunit.xml
+/README.md
+/storage/logs/*.log
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
