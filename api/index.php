@@ -23,6 +23,12 @@ putenv('APP_EVENTS_CACHE=/tmp/bootstrap/cache/events.php');
 putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php');
 putenv('APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php');
 putenv('APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php');
+putenv('CACHE_STORE=file');
+putenv('CACHE_DRIVER=file');
+putenv('SESSION_DRIVER=cookie');
+$_ENV['CACHE_STORE'] = 'file';
+$_ENV['CACHE_DRIVER'] = 'file';
+$_ENV['SESSION_DRIVER'] = 'cookie';
 
 // Ensure root script routing for Laravel URL generator
 $_SERVER['SCRIPT_NAME'] = '/index.php';

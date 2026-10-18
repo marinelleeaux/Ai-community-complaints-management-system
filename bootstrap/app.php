@@ -31,3 +31,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->with('error', 'Your session expired. Please sign in again.');
         });
     })->create();
+
+if (isset($_SERVER['VERCEL']) || isset($_ENV['VERCEL']) || env('VERCEL') || str_contains(env('APP_URL', ''), 'vercel.app')) {
+    $app->useStoragePath('/tmp/storage');
+}
+
+return $app;
