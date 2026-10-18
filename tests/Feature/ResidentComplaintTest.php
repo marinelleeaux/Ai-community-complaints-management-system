@@ -236,4 +236,24 @@ class ResidentComplaintTest extends TestCase
         $this->assertFalse($admin->can('update', $complaint));
         $this->assertFalse($admin->can('delete', $complaint));
     }
+
+    public function test_resident_can_submit_complaint_without_choosing_category_and_ai_auto_categorizes(): void
+    {
+        $response = $this->actingAs($this->resident)->post(route('resident.complaints.store'), [
+            'title' => 'Kusog kaayo ang videoke sa tungang gabii',
+            'purok_id' => $this->purok->id,
+            // Notice: No category_id supplied!
+            'incident_date' => now()->format('Y-m-d'),
+            'incident_location' => 'Duol sa basketball court',
+            'original_description' => 'Saba kaayo ang videoke diri hangtod alas tres sa kaadlawon, dili makatulog ang mga tawo.',
+        ]);
+
+        $complaint = Complaint::where('title', 'Kusog kaayo ang videoke sa tungang gabii')->first();
+        $this->assertNotNull($complaint);
+        $this->assertNotNull($complaint->category_id);
+        $this->assertNotNull($complaint->ai_suggested_category);
+        $this->assertNotNull($complaint->english_summary);
+        $response->assertRedirect(route('resident.complaints.show', $complaint->id));
+    }
 }
+

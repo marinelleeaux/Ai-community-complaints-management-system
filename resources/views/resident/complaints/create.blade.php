@@ -53,32 +53,31 @@
                     @enderror
                 </div>
 
-                <!-- Category & Purok Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="category_id" class="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                            <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                <!-- AI Auto-Categorization Notice & Purok Selection -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                    <!-- AI Automated Category Banner (Complainant will NOT choose, only AI will choose) -->
+                    <div class="p-4 rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/90 to-purple-50/90 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 border border-blue-200/80 dark:border-blue-800/60 shadow-xs flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-600/20">
+                            <svg class="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
-                            <span>Category</span>
-                            <span class="text-rose-500">*</span>
-                        </label>
-                        <select id="category_id" 
-                                name="category_id" 
-                                required 
-                                class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="" disabled selected>Select appropriate category</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('category_id')
-                            <p class="text-xs text-rose-500 font-medium mt-1.5">{{ $message }}</p>
-                        @enderror
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-black text-blue-900 dark:text-blue-200 uppercase tracking-wide">
+                                    AI Auto-Categorization
+                                </span>
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-600 text-white">
+                                    Automatic
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-snug">
+                                <strong>Category is automatically selected by AI.</strong> You don't need to choose — our Barangay AI reads your complaint description and classifies it accurately upon submission.
+                            </p>
+                        </div>
                     </div>
 
+                    <!-- Purok Location Selector -->
                     <div>
                         <label for="purok_id" class="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                             <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -91,8 +90,8 @@
                         <select id="purok_id" 
                                 name="purok_id" 
                                 required 
-                                class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="" disabled selected>Select Purok</option>
+                                class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                            <option value="" disabled selected>Select Purok in Barangay North Poblacion</option>
                             @foreach($puroks as $purok)
                                 <option value="{{ $purok->id }}" {{ (old('purok_id') == $purok->id || (!old('purok_id') && $user->purok_id == $purok->id)) ? 'selected' : '' }}>
                                     {{ $purok->name }}
@@ -102,25 +101,6 @@
                         @error('purok_id')
                             <p class="text-xs text-rose-500 font-medium mt-1.5">{{ $message }}</p>
                         @enderror
-                    </div>
-                </div>
-
-                <!-- Interactive "Others" Category Notice Box -->
-                <div id="others-category-notice" class="hidden p-5 rounded-3xl bg-gradient-to-r from-amber-50/90 to-orange-50/90 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200 dark:border-amber-900/60 shadow-xs animate-fade-in-up">
-                    <div class="flex items-start gap-3.5">
-                        <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-md shadow-amber-500/20">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                            </svg>
-                        </div>
-                        <div class="space-y-1">
-                            <h5 class="text-xs font-black text-amber-900 dark:text-amber-200 uppercase tracking-wide">
-                                Custom Complaint Topic (Others)
-                            </h5>
-                            <p class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-                                You selected <strong>"Others"</strong>. Please write what you want to complain about in the <strong>Complaint Title / Subject</strong> and clearly describe the incident details below so our Barangay team can attend to your concern.
-                            </p>
-                        </div>
                     </div>
                 </div>
 
@@ -264,25 +244,6 @@
 
     @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const categorySelect = document.getElementById('category_id');
-            const othersNotice = document.getElementById('others-category-notice');
-
-            function checkCategory() {
-                if (!categorySelect || !othersNotice) return;
-                const selectedText = categorySelect.options[categorySelect.selectedIndex]?.text?.trim()?.toLowerCase() || '';
-                if (selectedText.includes('other')) {
-                    othersNotice.classList.remove('hidden');
-                } else {
-                    othersNotice.classList.add('hidden');
-                }
-            }
-
-            if (categorySelect) {
-                categorySelect.addEventListener('change', checkCategory);
-                checkCategory();
-            }
-        });
 
         function previewComplaintFiles(input) {
             const preview = document.getElementById('file-list-preview');

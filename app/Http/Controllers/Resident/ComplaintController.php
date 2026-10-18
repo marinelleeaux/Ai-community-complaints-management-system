@@ -71,17 +71,42 @@ class ComplaintController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'category_id' => ['required', 'exists:complaint_categories,id'],
+            'category_id' => ['nullable', 'exists:complaint_categories,id'],
             'original_description' => ['required', 'string', 'min:10'],
             'incident_location' => ['required', 'string', 'max:255'],
             'purok_id' => ['required', 'exists:puroks,id'],
             'incident_date' => ['required', 'date', 'before_or_equal:today'],
+            'incident_time' => ['nullable'],
             'attachments.*' => ['nullable', 'file', 'mimes:jpeg,png,jpg,gif,webp,svg,bmp,pdf,doc,docx', 'max:10240'],
         ]);
 
         $user = Auth::user();
 
-        $complaint = DB::transaction(function () use ($validated, $user, $request) {
+        // 1. Run AI analysis to automatically determine category, priority, language, and translation
+        $tempComplaint = new Complaint([
+            'title' => $validated['title'],
+            'original_description' => $validated['original_description'],
+            'incident_location' => $validated['incident_location'],
+            'incident_date' => $validated['incident_date'],
+        ]);
+        $analysis = $this->aiService->analyze($tempComplaint);
+
+        // Assign category exclusively via AI suggestion
+        $categoryId = $validated['category_id'] ?? null;
+        if (!$categoryId && !empty($analysis['suggested_category'])) {
+            $matched = ComplaintCategory::where('name', $analysis['suggested_category'])->first();
+            if (!$matched) {
+                $firstWord = explode(' ', $analysis['suggested_category'])[0];
+                $matched = ComplaintCategory::where('name', 'LIKE', "%{$firstWord}%")->first();
+            }
+            $categoryId = $matched?->id;
+        }
+
+        if (!$categoryId) {
+            $categoryId = ComplaintCategory::where('name', 'General Barangay Inquiry')->value('id') ?? 1;
+        }
+
+        $complaint = DB::transaction(function () use ($validated, $user, $request, $analysis, $categoryId) {
             $refNumber = Complaint::generateReferenceNumber();
 
             $newComplaint = Complaint::create([
@@ -89,15 +114,20 @@ class ComplaintController extends Controller
                 'resident_id' => $user->id,
                 'title' => $validated['title'],
                 'original_description' => $validated['original_description'],
-                'original_language' => 'ceb', // Will be detected/refined by AI
-                'category_id' => $validated['category_id'],
+                'original_language' => $analysis['detected_language'] ?? 'ceb',
+                'english_translation' => $analysis['english_translation'] ?? $validated['original_description'],
+                'english_summary' => $analysis['english_summary'] ?? null,
+                'category_id' => $categoryId,
                 'incident_location' => $validated['incident_location'],
                 'purok_id' => $validated['purok_id'],
                 'incident_date' => $validated['incident_date'],
                 'incident_time' => $validated['incident_time'] ?? null,
-                'final_priority' => 'medium',
+                'ai_suggested_category' => $analysis['suggested_category'] ?? null,
+                'ai_suggested_priority' => $analysis['suggested_priority'] ?? 'medium',
+                'final_priority' => $analysis['suggested_priority'] ?? 'medium',
+                'priority_explanation' => $analysis['priority_explanation'] ?? null,
                 'status' => 'submitted',
-                'ai_analysis_status' => 'pending',
+                'ai_analysis_status' => 'completed',
             ]);
 
             // Save status history record
@@ -145,9 +175,12 @@ class ComplaintController extends Controller
             return $newComplaint;
         });
 
-        // Run or queue AI analysis
+        // Bust all caches immediately for both roles so live graphics update
+        \App\Services\PerformanceCache::clearAdminDashboard();
+        \App\Services\PerformanceCache::clearResident($user->id);
+
+        // Queue AI analysis for external enrichment if configured
         try {
-            // Run queued analysis job or immediate sync if queue is sync
             AnalyzeComplaintJob::dispatch($complaint->id);
         } catch (\Exception $e) {
             // Ensure complaint remains saved even if AI queue dispatch fails
@@ -193,7 +226,7 @@ class ComplaintController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'category_id' => 'required|exists:complaint_categories,id',
+            'category_id' => 'nullable|exists:complaint_categories,id',
             'purok_id' => 'required|exists:puroks,id',
             'incident_date' => 'nullable|date',
             'incident_location' => 'nullable|string|max:255',
@@ -209,7 +242,29 @@ class ComplaintController extends Controller
             'original_description' => $complaint->original_description,
         ];
 
-        $newCategory = ComplaintCategory::find($validated['category_id']);
+        // AI re-categorization and analysis
+        $tempComplaint = new Complaint([
+            'title' => $validated['title'],
+            'original_description' => $validated['original_description'],
+            'incident_location' => $validated['incident_location'] ?? $complaint->incident_location,
+            'incident_date' => $validated['incident_date'] ?? $complaint->incident_date,
+        ]);
+        $analysis = $this->aiService->analyze($tempComplaint);
+
+        $categoryId = $validated['category_id'] ?? null;
+        if (!$categoryId && !empty($analysis['suggested_category'])) {
+            $matched = ComplaintCategory::where('name', $analysis['suggested_category'])->first();
+            if (!$matched) {
+                $firstWord = explode(' ', $analysis['suggested_category'])[0];
+                $matched = ComplaintCategory::where('name', 'LIKE', "%{$firstWord}%")->first();
+            }
+            $categoryId = $matched?->id;
+        }
+        if (!$categoryId) {
+            $categoryId = $complaint->category_id;
+        }
+
+        $newCategory = ComplaintCategory::find($categoryId);
         $newPurok = Purok::find($validated['purok_id']);
         $formattedNewDate = !empty($validated['incident_date']) ? \Carbon\Carbon::parse($validated['incident_date'])->format('M d, Y') : 'Not specified';
 
@@ -233,14 +288,23 @@ class ComplaintController extends Controller
 
         $complaint->update([
             'title' => $validated['title'],
-            'category_id' => $validated['category_id'],
+            'category_id' => $categoryId,
             'purok_id' => $validated['purok_id'],
             'incident_date' => $validated['incident_date'],
             'incident_location' => $validated['incident_location'],
             'original_description' => $validated['original_description'],
-            'english_translation' => $validated['original_description'],
+            'original_language' => $analysis['detected_language'] ?? $complaint->original_language,
+            'english_translation' => $analysis['english_translation'] ?? $validated['original_description'],
+            'english_summary' => $analysis['english_summary'] ?? $complaint->english_summary,
+            'ai_suggested_category' => $analysis['suggested_category'] ?? $complaint->ai_suggested_category,
+            'ai_suggested_priority' => $analysis['suggested_priority'] ?? $complaint->ai_suggested_priority,
+            'final_priority' => $analysis['suggested_priority'] ?? $complaint->final_priority,
+            'priority_explanation' => $analysis['priority_explanation'] ?? $complaint->priority_explanation,
             'edit_history' => $history,
         ]);
+
+        \App\Services\PerformanceCache::clearAdminDashboard();
+        \App\Services\PerformanceCache::clearResident(Auth::id());
 
         AuditLog::log(Auth::id(), 'updated_complaint', 'complaints', (string) $complaint->id, [
             'reference_number' => $complaint->reference_number,
@@ -268,6 +332,7 @@ class ComplaintController extends Controller
         Gate::authorize('delete', $complaint);
 
         $ref = $complaint->reference_number;
+        $residentId = $complaint->resident_id;
 
         // Clean up attachments
         foreach ($complaint->attachments as $att) {
@@ -280,6 +345,10 @@ class ComplaintController extends Controller
         }
 
         $complaint->delete();
+
+        // Clear dashboard and feed caches immediately so live graphics follow
+        \App\Services\PerformanceCache::clearAdminDashboard();
+        \App\Services\PerformanceCache::clearResident($residentId);
 
         AuditLog::log(Auth::id(), 'deleted_complaint', 'complaints', (string) $id, [
             'reference_number' => $ref,

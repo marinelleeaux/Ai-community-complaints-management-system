@@ -488,20 +488,14 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
-                                        <td class="py-3 text-slate-500 font-bold"># 001</td>
-                                        <td class="py-3 font-semibold text-slate-900 dark:text-white">Streetlight Not Working</td>
-                                        <td class="py-3 text-slate-500 whitespace-nowrap">Oct 16, 2026</td>
-                                        <td class="py-3">
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200/60">
-                                                <svg class="w-3 h-3 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7v5l3 3"/></svg>
-                                                Pending
-                                            </span>
-                                        </td>
-                                        <td class="py-3 text-right">
-                                            <a href="{{ route('resident.complaints.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-blue-600 hover:text-white text-xs font-bold transition-all shadow-2xs">
-                                                <span>View Details</span>
-                                            </a>
+                                    <tr>
+                                        <td colspan="5" class="py-8 text-center text-slate-400 dark:text-slate-500 font-medium">
+                                            <div class="flex flex-col items-center justify-center gap-2">
+                                                <svg class="w-8 h-8 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                </svg>
+                                                <span class="text-xs">No complaints filed yet. Click <a href="{{ route('resident.complaints.create') }}" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">"+ File New Complaint"</a> to submit a concern.</span>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforelse
@@ -698,9 +692,9 @@
                         },
                         scales: {
                             y: {
-                                min: 0,
-                                max: 8,
-                                ticks: { stepSize: 2, font: { size: 10 } },
+                                beginAtZero: true,
+                                suggestedMax: 5,
+                                ticks: { precision: 0, font: { size: 10 } },
                                 grid: { color: 'rgba(226, 232, 240, 0.6)' }
                             },
                             x: {

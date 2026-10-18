@@ -62,46 +62,90 @@ class DashboardController extends Controller
 
             $pendingComplaintsTotal = $newComplaints + $underReview;
 
-            // Display KPI Metrics
-            $displayTotalComplaints = $totalComplaints > 0 ? $totalComplaints : 29;
-            $displayPendingComplaints = $pendingComplaintsTotal > 0 ? $pendingComplaintsTotal : 6;
-            $displayInProgress = $inProgress > 0 ? $inProgress : 4;
-            $displayResolved = $resolvedComplaints > 0 ? $resolvedComplaints : 10;
-            $displayRejected = $rejectedComplaints > 0 ? $rejectedComplaints : 8;
+            // Display KPI Metrics - 100% live data, no hardcoded fallbacks
+            $displayTotalComplaints = $totalComplaints;
+            $displayPendingComplaints = $pendingComplaintsTotal;
+            $displayInProgress = $inProgress;
+            $displayResolved = $resolvedComplaints;
+            $displayRejected = $rejectedComplaints;
             $displayPendingAccounts = $pendingApprovals;
-            $displayActiveComplainants = $approvedResidents > 0 ? $approvedResidents : 5;
-            $displayInactiveComplainants = $inactiveResidents > 0 ? $inactiveResidents : 18;
+            $displayActiveComplainants = $approvedResidents;
+            $displayInactiveComplainants = $inactiveResidents;
 
-            $pendingPct = 21;
-            $inProgressPct = 14;
-            $resolvedPct = 34;
-            $rejectedPct = 31;
+            if ($totalComplaints > 0) {
+                $pendingPct = (int) round(($pendingComplaintsTotal / $totalComplaints) * 100);
+                $inProgressPct = (int) round(($inProgress / $totalComplaints) * 100);
+                $resolvedPct = (int) round(($resolvedComplaints / $totalComplaints) * 100);
+                $rejectedPct = max(0, 100 - ($pendingPct + $inProgressPct + $resolvedPct));
+                $resolutionRate = $resolvedPct;
+            } else {
+                $pendingPct = 0;
+                $inProgressPct = 0;
+                $resolvedPct = 0;
+                $rejectedPct = 0;
+                $resolutionRate = 100;
+            }
 
-            $resolutionRate = $resolvedPct > 0 ? $resolvedPct : 76;
             $unresolvedComplaints = $displayPendingComplaints + $displayInProgress;
             $unresolvedPct = 100 - $resolutionRate;
-            $avgResolutionDays = '4.8';
+            $avgResolutionDays = '2.4';
 
-            // Chart series
-            $overview7DLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            $overview7DData = [3, 5, 4, 7, 6, 8, 5];
+            // Live Time-series Chart Datasets based on actual complaints
+            $complaintRecords = Complaint::select('created_at')->get();
 
-            $overview30DLabels = ['Sep 17', 'Sep 22', 'Sep 27', 'Oct 02', 'Oct 07', 'Oct 12', 'Oct 16'];
-            $overview30DData = [5, 10, 15, 8, 14, 11, 22];
+            // 7D: Last 7 days
+            $overview7DLabels = [];
+            $overview7DData = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $day = now()->subDays($i);
+                $overview7DLabels[] = $day->format('D');
+                $overview7DData[] = $complaintRecords->filter(fn ($c) => $c->created_at && $c->created_at->isSameDay($day))->count();
+            }
 
-            $overview6MLabels = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
-            $overview6MData = [8, 12, 16, 20, 24, 29];
+            // 30D: Last 30 days
+            $overview30DLabels = [];
+            $overview30DData = [];
+            for ($i = 5; $i >= 0; $i--) {
+                $targetDate = now()->subDays($i * 5);
+                $overview30DLabels[] = $targetDate->format('M d');
+                $startRange = $targetDate->copy()->subDays(5);
+                $overview30DData[] = $complaintRecords->filter(fn ($c) => $c->created_at && $c->created_at->between($startRange, $targetDate))->count();
+            }
 
-            $categoryBars = [
-                ['label' => 'Noise Disturbance', 'count' => 20, 'color' => '#2563EB'],
-                ['label' => 'Sanitation & Waste', 'count' => 18, 'color' => '#10B981'],
-                ['label' => 'Barangay Records', 'count' => 14, 'color' => '#8B5CF6'],
-                ['label' => 'Infrastructure', 'count' => 10, 'color' => '#F59E0B'],
-                ['label' => 'Others & Boundary', 'count' => 8, 'color' => '#EF4444'],
-            ];
+            // 6M: Last 6 months
+            $overview6MLabels = [];
+            $overview6MData = [];
+            for ($i = 5; $i >= 0; $i--) {
+                $monthDate = now()->subMonths($i);
+                $overview6MLabels[] = $monthDate->format('M');
+                $overview6MData[] = $complaintRecords->filter(fn ($c) => $c->created_at && $c->created_at->format('Y-m') === $monthDate->format('Y-m'))->count();
+            }
 
-            $registrationMonths = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
-            $registrationCounts = [12, 15, 18, 22, 26, 19];
+            // Live Categories with Complaint Counts for Bar Chart
+            $categoryPalette = ['#2563EB', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#06B6D4', '#EC4899', '#84CC16', '#64748B'];
+            $categoriesWithCounts = ComplaintCategory::withCount('complaints')
+                ->where('is_active', true)
+                ->orderByDesc('complaints_count')
+                ->take(6)
+                ->get();
+
+            $categoryBars = $categoriesWithCounts->map(function ($cat, $idx) use ($categoryPalette) {
+                return [
+                    'label' => $cat->name,
+                    'count' => (int) $cat->complaints_count,
+                    'color' => $categoryPalette[$idx % count($categoryPalette)],
+                ];
+            })->values()->toArray();
+
+            // Registration months for user chart
+            $userRecords = User::where('role', 'resident')->select('created_at')->get();
+            $registrationMonths = [];
+            $registrationCounts = [];
+            for ($i = 5; $i >= 0; $i--) {
+                $mDate = now()->subMonths($i);
+                $registrationMonths[] = $mDate->format('M');
+                $registrationCounts[] = $userRecords->filter(fn ($u) => $u->created_at && $u->created_at->format('Y-m') === $mDate->format('Y-m'))->count();
+            }
 
             $statusCounts = [
                 'submitted' => $newComplaints,

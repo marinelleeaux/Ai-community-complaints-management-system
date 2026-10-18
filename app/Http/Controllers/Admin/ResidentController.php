@@ -111,6 +111,9 @@ class ResidentController extends Controller
             ]);
         });
 
+        \App\Services\PerformanceCache::clearAdminDashboard();
+        \App\Services\PerformanceCache::clearResident($resident->id);
+
         return back()->with('success', "Resident {$resident->name} has been approved successfully.");
     }
 
@@ -159,6 +162,9 @@ class ResidentController extends Controller
             ]);
         });
 
+        \App\Services\PerformanceCache::clearAdminDashboard();
+        \App\Services\PerformanceCache::clearResident($resident->id);
+
         return back()->with('success', "Resident registration for {$resident->name} has been marked as rejected.");
     }
 
@@ -177,6 +183,9 @@ class ResidentController extends Controller
         AuditLog::log($admin->id, 'toggled_resident_status', 'users', $resident->id, [
             'new_status' => $newStatus,
         ]);
+
+        \App\Services\PerformanceCache::clearAdminDashboard();
+        \App\Services\PerformanceCache::clearResident($resident->id);
 
         return back()->with('success', "Resident status changed to {$newStatus}.");
     }
@@ -204,6 +213,9 @@ class ResidentController extends Controller
                 'resident_email' => $email,
             ]);
         });
+
+        \App\Services\PerformanceCache::clearAdminDashboard();
+        \App\Services\PerformanceCache::clearResident($resident->id);
 
         return redirect()->route('admin.residents.index')
             ->with('success', "Resident account for {$resident->name} has been permanently deleted.");

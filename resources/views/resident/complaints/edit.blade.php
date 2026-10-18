@@ -49,27 +49,26 @@
 
                 <!-- Category & Purok Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="category_id" class="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                            <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                    <!-- AI Automated Category Badge (Complainant will NOT choose, only AI will choose) -->
+                    <div class="p-3.5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/90 to-purple-50/90 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 border border-blue-200/80 dark:border-blue-800/60 shadow-xs flex items-start gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                            <svg class="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
-                            <span>Category</span>
-                            <span class="text-rose-500">*</span>
-                        </label>
-                        <select id="category_id" 
-                                name="category_id" 
-                                required 
-                                class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800 dark:text-slate-100">
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ old('category_id', $complaint->category_id) == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('category_id')
-                            <p class="text-xs text-rose-500 font-medium mt-1.5">{{ $message }}</p>
-                        @enderror
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-black text-blue-900 dark:text-blue-200 uppercase tracking-wide">
+                                    AI Category
+                                </span>
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-600 text-white">
+                                    {{ $complaint->category?->name ?? 'AI Assigned' }}
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-snug">
+                                Automatically analyzed and categorized by AI. When you edit your description, the AI will re-evaluate and assign the category.
+                            </p>
+                        </div>
                     </div>
 
                     <div>

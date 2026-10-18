@@ -139,7 +139,7 @@ if (document.querySelector('meta[name="user-authenticated"]')) {
 }
 
 // ==============================================================================
-// INSTANT CLICK FEEDBACK (Zero blocking, instant visual response on all buttons)
+// INSTANT CLICK FEEDBACK & NAVIGATION ACCELERATOR
 // ==============================================================================
 document.addEventListener('DOMContentLoaded', () => {
     // Add lightweight active ripple/feedback on actionable buttons & links
@@ -153,4 +153,88 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { passive: true });
 });
+
+// ==============================================================================
+// INSTANT NAVIGATION ACCELERATOR (Top progress bar + Hover/Touch Prefetching)
+// ==============================================================================
+(function () {
+    let progressBar = null;
+    function getProgressBar() {
+        if (!progressBar) {
+            progressBar = document.createElement('div');
+            progressBar.id = 'system-top-loader';
+            progressBar.className = 'fixed top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 z-50 pointer-events-none transition-all duration-300 opacity-0 -translate-x-full';
+            document.body.appendChild(progressBar);
+        }
+        return progressBar;
+    }
+
+    function startTopLoader() {
+        const bar = getProgressBar();
+        bar.style.transition = 'transform 0.4s ease, opacity 0.1s ease';
+        bar.style.opacity = '1';
+        bar.style.transform = 'translateX(-30%)';
+    }
+
+    function finishTopLoader() {
+        if (!progressBar) return;
+        progressBar.style.transform = 'translateX(0%)';
+        setTimeout(() => {
+            progressBar.style.opacity = '0';
+            setTimeout(() => {
+                progressBar.style.transform = 'translateX(-100%)';
+            }, 300);
+        }, 200);
+    }
+
+    const prefetchedUrls = new Set();
+    function prefetchUrl(url) {
+        if (!url || prefetchedUrls.has(url)) return;
+        try {
+            const parsed = new URL(url, window.location.origin);
+            if (parsed.origin !== window.location.origin) return;
+            if (parsed.pathname === window.location.pathname) return;
+            if (parsed.pathname.includes('/logout') || parsed.pathname.includes('/delete')) return;
+
+            prefetchedUrls.add(url);
+            const linkEl = document.createElement('link');
+            linkEl.rel = 'prefetch';
+            linkEl.href = url;
+            document.head.appendChild(linkEl);
+        } catch (_) {}
+    }
+
+    document.addEventListener('mouseover', (e) => {
+        const a = e.target.closest('a[href]');
+        if (a && a.href && !a.href.startsWith('javascript:') && !a.href.includes('#')) {
+            prefetchUrl(a.href);
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchstart', (e) => {
+        const a = e.target.closest('a[href]');
+        if (a && a.href && !a.href.startsWith('javascript:') && !a.href.includes('#')) {
+            prefetchUrl(a.href);
+        }
+    }, { passive: true });
+
+    document.addEventListener('click', (e) => {
+        const a = e.target.closest('a[href]');
+        if (a && a.href && !a.target && !e.ctrlKey && !e.metaKey && !a.href.startsWith('javascript:') && !a.href.includes('#')) {
+            try {
+                const parsed = new URL(a.href, window.location.origin);
+                if (parsed.origin === window.location.origin && !a.hasAttribute('download')) {
+                    startTopLoader();
+                }
+            } catch (_) {}
+        }
+
+        const submitBtn = e.target.closest('button[type="submit"]');
+        if (submitBtn && submitBtn.form) {
+            startTopLoader();
+        }
+    }, { passive: true });
+
+    window.addEventListener('pageshow', finishTopLoader);
+})();
 

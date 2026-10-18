@@ -19,13 +19,13 @@ class DashboardController extends Controller
 
         // Cached Resident Dashboard Data (Instantly loads in ~2ms)
         $cachedData = Cache::remember("resident_dashboard_{$user->id}", PerformanceCache::FEEDS_TTL, function () use ($user) {
-            // 1. Single aggregated query for resident metrics matching reference screenshot
+            // 1. Single aggregated query for resident metrics - 100% live
             $stats = DB::table('complaints')
                 ->where('resident_id', $user->id)
                 ->selectRaw("
                     count(*) as total,
-                    count(case when status = 'pending' then 1 end) as pending,
-                    count(case when status in ('in_progress', 'under_review', 'acknowledged') then 1 end) as in_review,
+                    count(case when status in ('submitted', 'under_review') then 1 end) as pending,
+                    count(case when status in ('in_progress', 'acknowledged', 'referred_to_responsible_office') then 1 end) as in_review,
                     count(case when status = 'resolved' then 1 end) as resolved,
                     count(case when status = 'rejected' then 1 end) as rejected
                 ")->first();
@@ -36,57 +36,77 @@ class DashboardController extends Controller
             $resolvedCount = (int) ($stats->resolved ?? 0);
             $rejectedCount = (int) ($stats->rejected ?? 0);
 
-            // Display counts
-            $displayTotal = $totalComplaints > 0 ? $totalComplaints : 9;
-            $displayPending = $pendingCount > 0 ? $pendingCount : 2;
-            $displayInReview = $inReviewCount > 0 ? $inReviewCount : 3;
-            $displayResolved = $resolvedCount > 0 ? $resolvedCount : 3;
+            // Real live counts - no dummy numbers
+            $displayTotal = $totalComplaints;
+            $displayPending = $pendingCount;
+            $displayInReview = $inReviewCount;
+            $displayResolved = $resolvedCount;
 
             // Dynamic percentages
-            $pendingPct = (int) round(($displayPending / max(1, $displayTotal)) * 100);
-            $inReviewPct = (int) round(($displayInReview / max(1, $displayTotal)) * 100);
-            $resolvedPct = max(0, 100 - ($pendingPct + $inReviewPct));
+            $pendingPct = $displayTotal > 0 ? (int) round(($displayPending / $displayTotal) * 100) : 0;
+            $inReviewPct = $displayTotal > 0 ? (int) round(($displayInReview / $displayTotal) * 100) : 0;
+            $resolvedPct = $displayTotal > 0 ? max(0, 100 - ($pendingPct + $inReviewPct)) : 0;
 
-            // Timeframe datasets for interactive line chart
-            $overview7DLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            $overview7DData = [1, 2, 1, 3, 2, 4, 3];
+            // Live Timeframe datasets for interactive line chart based on actual complaints
+            $myComplaints = Complaint::where('resident_id', $user->id)->select('created_at')->get();
 
-            $overview30DLabels = ['Sep 17', 'Sep 22', 'Sep 27', 'Oct 02', 'Oct 07', 'Oct 12', 'Oct 16'];
-            $overview30DData = [0.8, 2.1, 3.0, 1.9, 3.8, 4.9, 6.4];
+            // 7D: Last 7 days
+            $overview7DLabels = [];
+            $overview7DData = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $day = now()->subDays($i);
+                $overview7DLabels[] = $day->format('D');
+                $overview7DData[] = $myComplaints->filter(fn ($c) => $c->created_at && $c->created_at->isSameDay($day))->count();
+            }
 
-            $overview6MLabels = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
-            $overview6MData = [2, 3, 5, 6, 7, 9];
+            // 30D: Last 30 days
+            $overview30DLabels = [];
+            $overview30DData = [];
+            for ($i = 5; $i >= 0; $i--) {
+                $targetDate = now()->subDays($i * 5);
+                $overview30DLabels[] = $targetDate->format('M d');
+                $startRange = $targetDate->copy()->subDays(5);
+                $overview30DData[] = $myComplaints->filter(fn ($c) => $c->created_at && $c->created_at->between($startRange, $targetDate))->count();
+            }
 
-            $overview1YLabels = ['Nov', 'Jan', 'Mar', 'May', 'Jul', 'Sep', 'Oct'];
-            $overview1YData = [1, 2, 3, 5, 6, 8, 9];
+            // 6M: Last 6 months
+            $overview6MLabels = [];
+            $overview6MData = [];
+            for ($i = 5; $i >= 0; $i--) {
+                $monthDate = now()->subMonths($i);
+                $overview6MLabels[] = $monthDate->format('M');
+                $overview6MData[] = $myComplaints->filter(fn ($c) => $c->created_at && $c->created_at->format('Y-m') === $monthDate->format('Y-m'))->count();
+            }
 
-            // Recent complaints list matching reference image
+            // 1Y: Last 12 months
+            $overview1YLabels = [];
+            $overview1YData = [];
+            for ($i = 5; $i >= 0; $i--) {
+                $monthDate = now()->subMonths($i * 2);
+                $overview1YLabels[] = $monthDate->format('M Y');
+                $startRange = $monthDate->copy()->subMonths(2);
+                $overview1YData[] = $myComplaints->filter(fn ($c) => $c->created_at && $c->created_at->between($startRange, $monthDate))->count();
+            }
+
+            // Recent complaints list of the authenticated resident only
             $recentComplaints = Complaint::where('resident_id', $user->id)
                 ->with(['category', 'purok'])
-                ->orderBy('incident_date', 'desc')
-                ->orderBy('created_at', 'desc')
+                ->latest()
                 ->take(5)
                 ->get();
-
-            if ($recentComplaints->isEmpty()) {
-                $recentComplaints = Complaint::with(['category', 'purok'])
-                    ->orderBy('incident_date', 'desc')
-                    ->take(5)
-                    ->get();
-            }
 
             $latestAnnouncements = Announcement::published()
                 ->latest('published_at')
                 ->take(3)
                 ->get();
 
-            $unreadCount = max(3, $user->unreadNotificationsCount());
+            $unreadCount = $user->unreadNotificationsCount();
 
-            // Trend calculations
-            $totalTrend = '↑ 33%';
-            $pendingTrend = '↑ 0%';
-            $inReviewTrend = '↑ 25%';
-            $resolvedTrend = '↑ 50%';
+            // Live Trend calculations
+            $totalTrend = $displayTotal > 0 ? "Live ({$displayTotal})" : 'None';
+            $pendingTrend = $displayPending > 0 ? "Live ({$displayPending})" : '0';
+            $inReviewTrend = $displayInReview > 0 ? "Live ({$displayInReview})" : '0';
+            $resolvedTrend = $displayResolved > 0 ? "Live ({$displayResolved})" : '0';
 
             return compact(
                 'displayTotal',

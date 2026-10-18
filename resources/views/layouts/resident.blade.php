@@ -54,8 +54,8 @@
 
         <!-- Left: Logo & Official System Branding (Returned Nav Bar) -->
         <div class="flex items-center gap-3">
-            <!-- Mobile Menu Toggle Button -->
-            <button type="button" onclick="toggleResidentSidebar()" aria-label="Toggle Navigation Menu" class="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <!-- Mobile & Tablet Menu Toggle Button -->
+            <button type="button" onclick="toggleResidentSidebar()" aria-label="Toggle Navigation Menu" class="lg:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
 
@@ -266,11 +266,11 @@
         <!-- Mobile Drawer Backdrop Overlay (Cellphone & Tablet) -->
         <div id="resident-sidebar-backdrop" 
              onclick="closeResidentSidebar()" 
-             class="hidden fixed inset-0 bg-slate-950/50 backdrop-blur-xs z-25 md:hidden transition-opacity"></div>
+             class="hidden fixed inset-0 bg-slate-950/50 backdrop-blur-xs z-25 lg:hidden transition-opacity"></div>
 
-        <!-- Sidebar Navigation (Aesthetic, clean, professional) -->
+        <!-- Sidebar Navigation (Aesthetic, clean, professional for Phone, Tablet, Laptop) -->
         <aside id="resident-sidebar" 
-               class="fixed md:static inset-y-18 left-0 z-30 w-64 sm:w-68 lg:w-72 bg-white/95 dark:bg-[#0E1726]/95 backdrop-blur-md border-r border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-lg md:shadow-none overflow-y-auto">
+               class="fixed lg:static top-18 bottom-0 left-0 z-30 w-64 sm:w-68 lg:w-72 bg-white/95 dark:bg-[#0E1726]/95 backdrop-blur-md border-r border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-lg lg:shadow-none overflow-y-auto">
             
             <div class="p-3.5 sm:p-4 flex-1 flex flex-col">
                 <!-- Clean Aesthetic Navigation Header -->
@@ -282,7 +282,7 @@
                         </span>
                     </div>
                     <!-- Close button for mobile drawer -->
-                    <button type="button" onclick="closeResidentSidebar()" class="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close Sidebar">
+                    <button type="button" onclick="closeResidentSidebar()" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close Sidebar">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>

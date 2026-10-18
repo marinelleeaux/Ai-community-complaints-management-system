@@ -893,9 +893,9 @@
                         },
                         scales: {
                             y: {
-                                min: 0,
-                                max: 30,
-                                ticks: { stepSize: 10, font: { size: 10 } },
+                                beginAtZero: true,
+                                suggestedMax: 5,
+                                ticks: { precision: 0, font: { size: 10 } },
                                 grid: { color: 'rgba(226, 232, 240, 0.6)' }
                             },
                             x: {
@@ -964,9 +964,9 @@
                         },
                         scales: {
                             y: {
-                                min: 0,
-                                max: 25,
-                                ticks: { stepSize: 5, font: { size: 9 } },
+                                beginAtZero: true,
+                                suggestedMax: 5,
+                                ticks: { precision: 0, font: { size: 9 } },
                                 grid: { color: 'rgba(226, 232, 240, 0.6)' }
                             },
                             x: {

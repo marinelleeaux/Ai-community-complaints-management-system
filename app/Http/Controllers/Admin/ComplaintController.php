@@ -131,6 +131,9 @@ class ComplaintController extends Controller
             ]);
         });
 
+        \App\Services\PerformanceCache::clearAdminDashboard();
+        \App\Services\PerformanceCache::clearResident($complaint->resident_id);
+
         if ($request->expectsJson() || $request->wantsJson()) {
             $complaint->refresh();
             return response()->json([
@@ -161,6 +164,9 @@ class ComplaintController extends Controller
             'priority_explanation' => $validated['priority_explanation'] ?? $complaint->priority_explanation,
         ]);
 
+        \App\Services\PerformanceCache::clearAdminDashboard();
+        \App\Services\PerformanceCache::clearResident($complaint->resident_id);
+
         AuditLog::log($admin->id, 'override_ai_complaint_classification', 'complaints', (string) $complaint->id, [
             'category_id' => $validated['category_id'],
             'final_priority' => $validated['final_priority'],
@@ -180,6 +186,9 @@ class ComplaintController extends Controller
         $assignee = User::findOrFail($validated['assigned_to']);
 
         $complaint->update(['assigned_to' => $assignee->id]);
+
+        \App\Services\PerformanceCache::clearAdminDashboard();
+        \App\Services\PerformanceCache::clearResident($complaint->resident_id);
 
         Notification::create([
             'recipient_id' => $assignee->id,
