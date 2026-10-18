@@ -5,6 +5,7 @@
 **Developed by:** Jan Marinelle Auditor
 
 **Live Website:** https://ai-community-complaints-management.vercel.app/
+---
 **Repository:** https://github.com/marinelleeaux/Ai-community-complaints-management-system
 ---
 
