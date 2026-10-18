@@ -53,7 +53,7 @@ class ComplaintController extends Controller
         }
 
         $complaints = $query->latest()->paginate(10)->withQueryString();
-        $categories = ComplaintCategory::where('is_active', true)->get();
+        $categories = ComplaintCategory::getActiveCached();
 
         return view('resident.complaints.index', compact('complaints', 'categories'));
     }
@@ -61,8 +61,8 @@ class ComplaintController extends Controller
     public function create()
     {
         $user = Auth::user();
-        $categories = ComplaintCategory::where('is_active', true)->get();
-        $puroks = Purok::where('is_active', true)->get();
+        $categories = ComplaintCategory::getActiveCached();
+        $puroks = Purok::getActiveCached();
 
         return view('resident.complaints.create', compact('categories', 'puroks', 'user'));
     }
@@ -176,8 +176,8 @@ class ComplaintController extends Controller
 
         Gate::authorize('update', $complaint);
 
-        $categories = ComplaintCategory::where('is_active', true)->get();
-        $puroks = Purok::where('is_active', true)->get();
+        $categories = ComplaintCategory::getActiveCached();
+        $puroks = Purok::getActiveCached();
 
         return view('resident.complaints.edit', compact('complaint', 'categories', 'puroks'));
     }

@@ -46,6 +46,23 @@ class Complaint extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saved(function ($complaint) {
+            \App\Services\PerformanceCache::clearAdminDashboard();
+            if ($complaint->resident_id) {
+                \App\Services\PerformanceCache::clearResident($complaint->resident_id);
+            }
+        });
+
+        static::deleted(function ($complaint) {
+            \App\Services\PerformanceCache::clearAdminDashboard();
+            if ($complaint->resident_id) {
+                \App\Services\PerformanceCache::clearResident($complaint->resident_id);
+            }
+        });
+    }
+
     /**
      * Generate unique reference number in format: NPC-YYYY-XXXX
      */

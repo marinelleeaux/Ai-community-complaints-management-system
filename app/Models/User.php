@@ -66,6 +66,19 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saved(function ($user) {
+            \App\Services\PerformanceCache::clearAdminDashboard();
+            \App\Services\PerformanceCache::clearResident($user->id);
+        });
+
+        static::deleted(function ($user) {
+            \App\Services\PerformanceCache::clearAdminDashboard();
+            \App\Services\PerformanceCache::clearResident($user->id);
+        });
+    }
+
     // Role helpers
     public function isAdmin(): bool
     {

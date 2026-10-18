@@ -2,17 +2,17 @@
     <x-slot:header>Official Administrator Dashboard</x-slot:header>
 
     <div class="space-y-6 animate-fade-in-up">
-        <!-- 1. Top Executive Hero Header: Animated Civic Glassmorphism Card with Admin Profile Picture & Live Controls -->
-        <div class="relative rounded-3xl overflow-hidden shadow-blue-purple reflection-glass border border-purple-400/30 dark:border-purple-800/40 bg-gradient-to-r from-[#071938] via-[#1E1B4B] to-[#3B0764] dark:from-[#050D1E] dark:via-[#110D2C] dark:to-[#22073E] p-6 sm:p-8 text-white min-h-[220px] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 group">
+        <!-- 1. Top Executive Hero Header: Full-Bar Architectural Photo Background + Admin Profile & Live Controls -->
+        <div class="relative rounded-3xl overflow-hidden shadow-xl border border-slate-200/80 dark:border-slate-800 bg-slate-100 dark:bg-[#09152C] p-6 sm:p-8 min-h-[230px] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 group">
             
-            <!-- Full-Bleed Barangay Hall Photo Background (Transparent from Residents Portal) -->
+            <!-- Full-Bleed Barangay Hall Photo Filling the Entire Bar (Copied 1:1 Transparent from Resident Portal) -->
             <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
-                <img src="{{ asset('images/barangay-hall.png') }}?v={{ file_exists(public_path('images/barangay-hall.png')) ? filemtime(public_path('images/barangay-hall.png')) : time() }}" 
+                <img src="{{ asset('images/barangay-hall.png') }}" 
                      alt="Barangay North Poblacion Hall" 
                      class="absolute inset-0 w-full h-full object-cover object-[center_35%] opacity-35 dark:opacity-25 filter contrast-105 saturate-110 brightness-95 dark:brightness-80 transition-transform duration-700 group-hover:scale-[1.01]">
                 
-                <!-- Linear Scrim Overlay: Dark executive scrim for optimal text contrast and readability -->
-                <div class="absolute inset-0 bg-gradient-to-r from-[#071938]/95 via-[#1E1B4B]/85 via-50% to-transparent dark:from-[#050D1E]/95 dark:via-[#110D2C]/85 dark:via-50% dark:to-transparent pointer-events-none"></div>
+                <!-- Linear Scrim Overlay: Soft translucent scrim for optimal contrast and readability -->
+                <div class="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 via-50% to-transparent dark:from-[#09152C]/90 dark:via-[#09152C]/70 dark:via-50% dark:to-transparent pointer-events-none"></div>
             </div>
 
             <!-- Left Side: Admin Profile Picture with Glowing Ring + Welcome Headings & Animated Badges -->
@@ -22,19 +22,30 @@
                     <!-- Glowing Aura / Halo -->
                     <div class="absolute -inset-1.5 rounded-3xl bg-gradient-to-tr from-sky-400 via-blue-500 to-indigo-400 opacity-75 blur-md group-hover/avatar:opacity-100 transition-opacity duration-500 animate-glow-pulse"></div>
                     
-                    <!-- Avatar Frame -->
-                    <div class="relative w-22 h-22 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-3xl bg-white/15 backdrop-blur-md p-1.5 shadow-2xl border-2 border-white/50 dark:border-blue-400/40 ring-4 ring-white/10 group-hover/avatar:scale-105 transition-all duration-300">
-                        <img src="{{ Auth::user()->avatarUrl() }}" 
-                             alt="{{ Auth::user()->name }}" 
-                             class="w-full h-full object-cover rounded-2xl shadow-inner bg-slate-900/50">
+                    <!-- Avatar Frame with Reflection Sheen (Matching Resident Portal) -->
+                    <div class="relative w-22 h-22 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-3xl bg-white dark:bg-slate-800 p-1.5 shadow-2xl border-2 border-slate-200/90 dark:border-blue-400/40 ring-4 ring-slate-900/5 dark:ring-white/10 group-hover/avatar:scale-105 transition-all duration-300">
+                        <div class="relative w-full h-full rounded-2xl overflow-hidden shadow-inner">
+                            <img src="{{ Auth::user()->avatarUrl() }}" 
+                                 alt="{{ Auth::user()->name }}" 
+                                 class="w-full h-full object-cover">
+                            
+                            <!-- Glossy Glass Reflection Sheen -->
+                            <div class="absolute inset-0 bg-gradient-to-b from-white/30 via-white/10 to-transparent pointer-events-none"></div>
+                            <span class="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 -translate-x-full group-hover/avatar:animate-shimmer pointer-events-none"></span>
+                        </div>
                         
                         <!-- Verified Administrator Badge with Pulsing Ping -->
-                        <div class="absolute -bottom-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-lg border-2 border-white dark:border-[#071F42] animate-bounce-slow" title="Official Administrator Online">
-                            <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping absolute"></span>
+                        <div class="absolute -bottom-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-lg border-2 border-white dark:border-slate-900 animate-bounce-slow" title="Official Administrator Online">
+                            <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping absolute opacity-60"></span>
                             <svg class="w-4 h-4 relative z-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
+                    </div>
+
+                    <!-- Downward Mirrored Reflection -->
+                    <div class="absolute -bottom-2.5 left-2 right-2 h-3.5 rounded-b-xl overflow-hidden opacity-30 dark:opacity-20 pointer-events-none transform -scale-y-100 blur-[0.8px] select-none [mask-image:linear-gradient(to_bottom,rgba(0,0,0,0.8),transparent)]">
+                        <img src="{{ Auth::user()->avatarUrl() }}" alt="" class="w-full h-full object-cover">
                     </div>
                 </div>
 
@@ -42,12 +53,12 @@
                 <div class="space-y-2">
                     <!-- Badges Row -->
                     <div class="flex flex-wrap items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/15 backdrop-blur-md border border-white/25 text-white shadow-xs">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-100 dark:bg-blue-950/80 border border-blue-200/80 dark:border-blue-800/80 text-blue-700 dark:text-blue-300 shadow-2xs">
+                            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
                             <span>OFFICIAL ADMINISTRATOR</span>
                         </span>
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-500/20 backdrop-blur-md border border-blue-300/30 text-blue-100">
-                            <svg class="w-3 h-3 text-sky-300" fill="currentColor" viewBox="0 0 20 20">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 dark:bg-purple-950/80 border border-purple-200/80 dark:border-purple-800/80 text-purple-700 dark:text-purple-300">
+                            <svg class="w-3 h-3 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                             </svg>
                             <span>North Poblacion, Maramag</span>
@@ -55,26 +66,26 @@
                     </div>
 
                     <!-- Welcome, Admin Name! -->
-                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight drop-shadow-md">
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight drop-shadow-xs">
                         Welcome, {{ Auth::user()->name }}!
                     </h1>
 
-                    <p class="text-xs sm:text-sm text-blue-100/90 font-medium leading-relaxed max-w-xl">
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-xl">
                         Here is your executive live control center for community complaints, pending resident approvals, and public service notices.
                     </p>
 
                     <!-- Animated Feature Chips Row -->
                     <div class="flex flex-wrap items-center gap-2 sm:gap-3 pt-1">
-                        <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-[11px] font-semibold text-blue-100">
-                            <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+                        <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-[11px] font-semibold text-slate-700 dark:text-slate-300 shadow-2xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
                             <span>Real-Time AI Categorization</span>
                         </div>
-                        <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-[11px] font-semibold text-blue-100">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-[11px] font-semibold text-slate-700 dark:text-slate-300 shadow-2xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                             <span>Direct Complaint Resolution</span>
                         </div>
-                        <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15 text-[11px] font-semibold text-blue-100">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                        <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-[11px] font-semibold text-slate-700 dark:text-slate-300 shadow-2xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                             <span>Verified Resident Accounts</span>
                         </div>
                     </div>
@@ -85,10 +96,10 @@
             <div class="relative z-10 flex flex-col sm:flex-row lg:flex-col items-stretch lg:items-end gap-3 shrink-0 w-full lg:w-auto">
                 <!-- Primary Action: Go to Complaints Management -->
                 <a href="{{ route('admin.complaints.index') }}" 
-                   class="relative overflow-hidden inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-purple-900/40 border border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-105 active:scale-95 group/btn">
+                   class="relative overflow-hidden inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-blue-600/20 border border-white/20 transition-all duration-300 hover:scale-105 active:scale-95 group/btn">
                     <!-- Shimmer Sweep Effect -->
                     <span class="absolute inset-0 w-1/2 h-full bg-white/20 skew-x-12 -translate-x-full group-hover/btn:animate-shimmer pointer-events-none"></span>
-                    <svg class="w-4 h-4 text-purple-200 group-hover/btn:rotate-6 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                    <svg class="w-4 h-4 text-blue-100 group-hover/btn:rotate-6 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     <span>Complaints Management</span>
@@ -98,11 +109,11 @@
                 <!-- Secondary Action: Post Announcement & Live System Pill -->
                 <div class="flex items-center justify-between lg:justify-end gap-2.5">
                     <a href="{{ route('admin.announcements.index') }}" 
-                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 backdrop-blur-md transition-all hover:scale-102">
+                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-2xs transition-all hover:scale-102">
                         <span>+ Post Announcement</span>
                     </a>
-                    <div class="px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/15 text-[10px] font-bold text-emerald-300 flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <div class="px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200/80 dark:border-emerald-800 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 shadow-2xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span>Portal Live</span>
                     </div>
                 </div>

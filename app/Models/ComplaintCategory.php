@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 
 class ComplaintCategory extends Model
 {
@@ -21,6 +22,24 @@ class ComplaintCategory extends Model
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            Cache::forget('active_categories_cached');
+        });
+
+        static::deleted(function () {
+            Cache::forget('active_categories_cached');
+        });
+    }
+
+    public static function getActiveCached()
+    {
+        return Cache::remember('active_categories_cached', 300, function () {
+            return static::where('is_active', true)->orderBy('name')->get();
+        });
     }
 
     public function complaints(): HasMany

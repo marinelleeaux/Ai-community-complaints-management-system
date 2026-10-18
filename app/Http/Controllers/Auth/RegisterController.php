@@ -33,7 +33,7 @@ class RegisterController extends Controller
             return redirect()->route('resident.dashboard');
         }
 
-        $puroks = Purok::where('is_active', true)->orderBy('name')->get();
+        $puroks = Purok::getActiveCached();
         return view('auth.register', compact('puroks'));
     }
 
