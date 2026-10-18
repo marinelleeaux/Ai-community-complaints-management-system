@@ -43,7 +43,7 @@
         $pendingResidentsCount = \Illuminate\Support\Facades\Cache::remember('admin_nav_pending_residents', 15, function() {
             return \App\Models\User::where('role', 'resident')->where('account_status', 'pending')->count();
         });
-        $displayPendingAcc = $pendingResidentsCount > 0 ? $pendingResidentsCount : 1;
+        $displayPendingAcc = $pendingResidentsCount;
         $unreadNotifCount = $adminUserId ? \Illuminate\Support\Facades\Cache::remember("user_{$adminUserId}_unread_notifs_count", 15, function() use ($adminUserId) {
             return \App\Models\Notification::where('recipient_id', $adminUserId)->where('is_read', false)->count();
         }) : 0;
@@ -298,9 +298,11 @@
                             </svg>
                             <span class="truncate">Pending Accounts</span>
                         </div>
-                        <span class="w-5 h-5 rounded-full text-[10px] font-black bg-rose-500 text-white flex items-center justify-center shadow-xs shrink-0 ml-2">
-                            {{ $displayPendingAcc }}
-                        </span>
+                        @if($displayPendingAcc > 0)
+                            <span class="w-5 h-5 rounded-full text-[10px] font-black bg-amber-500 text-white flex items-center justify-center shadow-xs shrink-0 ml-2 animate-pulse">
+                                {{ $displayPendingAcc }}
+                            </span>
+                        @endif
                     </a>
 
                     <!-- 3. All Complainants -->

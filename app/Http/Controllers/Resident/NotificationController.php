@@ -159,11 +159,13 @@ class NotificationController extends Controller
             return response()->json(['unread_count' => 0, 'notifications' => []]);
         }
 
-        $unreadCount = $user->unreadNotificationsCount();
-        $latest = Notification::where('recipient_id', $user->id)
-            ->latest()
-            ->take(8)
-            ->get();
+        $unreadCount = Cache::remember("user_{$user->id}_unread_notifs_count", 15, fn () => $user->unreadNotificationsCount());
+        $latest = Cache::remember("user_{$user->id}_recent_notifs", 15, function () use ($user) {
+            return Notification::where('recipient_id', $user->id)
+                ->latest()
+                ->take(8)
+                ->get();
+        });
 
         return response()->json([
             'unread_count' => $unreadCount,

@@ -68,7 +68,7 @@ class DashboardController extends Controller
             $displayInProgress = $inProgress > 0 ? $inProgress : 4;
             $displayResolved = $resolvedComplaints > 0 ? $resolvedComplaints : 10;
             $displayRejected = $rejectedComplaints > 0 ? $rejectedComplaints : 8;
-            $displayPendingAccounts = $pendingApprovals > 0 ? $pendingApprovals : 1;
+            $displayPendingAccounts = $pendingApprovals;
             $displayActiveComplainants = $approvedResidents > 0 ? $approvedResidents : 5;
             $displayInactiveComplainants = $inactiveResidents > 0 ? $inactiveResidents : 18;
 
